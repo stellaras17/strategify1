@@ -13,17 +13,40 @@
 
       
     </q-list>
+
+    <div class="float-bottom text-center">
+      <q-btn
+        @click="showAddStrat = true"
+        round
+        color="primary"
+        size="24PX"
+        icon="add"
+      />
+    </div>
+
+  <q-dialog v-model="showAddStrat">
+      <add-strat />
+    </q-dialog>
+
   </q-page>
 </template>
 
 <script>
+import AddStrat from 'components/Strats/AddStrat.vue'
 import { mapGetters } from 'vuex'
 export default {
+  data() {
+    return {
+      showAddStrat: false
+    }
+  },
     computed: {
       ...mapGetters('strats', ['strats'])
     },
     components: {
-      'strat': require('components/Strats/Strat.vue').default
+      'strat': require('components/Strats/Strat.vue').default,
+      'add-strat': require('components/Strats/AddStrat.vue').default
+      
     }
   }
 </script>

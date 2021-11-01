@@ -2,6 +2,14 @@
     <div>
         <q-banner class="bg-primary text-secondary ">
             {{ strat.name}}
+            <q-btn
+            @click="promptToDelete(id)"
+              class="float-right"
+              dense
+              flat
+              round
+              color="secondary"
+              icon="delete" />
             </q-banner>
 
         <q-item class="bg-white">
@@ -22,8 +30,11 @@
 
                 <q-item-section 
                     @click="updateStrat({id: id, updates: { active: !strat.active } })"
-                    clickable>
+                    clickable
+                    class="cursor-pointer">
                    <q-checkbox
+                     class="no-pointer-events cursor-pointer"
+                     label="Active"
                       :value="strat.active" />
                 </q-item-section>
             
@@ -93,7 +104,19 @@ import { mapActions } from 'vuex'
 export default {
     props: ['strat', 'id'],
     methods: {
-        ...mapActions('strats', ['updateStrat'])
+        ...mapActions('strats', ['updateStrat', 'deleteStrat']),
+        promptToDelete(id) {
+            this.$q.dialog({
+                title: 'Confirm',
+                message: 'Are you sure you want to delete this Strategy? Once deleted, it cannot be retrieved',
+                cancel: true,
+                persistent: true
+            }).onOk(() => {
+                this.deleteStrat(id)
+            })
+                
+            
+        }
     }
 }
 </script>

@@ -1,3 +1,5 @@
+import Vue from 'vue'
+
 const state = {
     strats: {
         'ID1': {
@@ -51,9 +53,9 @@ const state = {
             conditionMet: false
           }},
           sellConditions: {'ID321':{
-            indicator: 'RSI',
+            indicator: 'SMA',
             aob: 'above',
-            targetValue: 80,
+            targetValue: 60,
             conditionMet: false
           }}
         },
@@ -66,13 +68,20 @@ const state = {
 const mutations = {
     updateStrat(state, payload){
         Object.assign(state.strats[payload.id], payload.updates)
+    },
+    deleteStrat(state, id){
+      Vue.delete(state.strats, id)
     }
 }
 
 const actions = {
     updateStrat({ commit }, payload) {
-        commit('updateStrat', payload)
+      commit('updateStrat', payload)
+    },
+    deleteStrat({ commit }, id) {
+      commit('deleteStrat', id)
     }
+
 }
 
 const getters = {
