@@ -81,7 +81,7 @@
                         </q-item-section>
 
                         <q-item-section>
-                            <q-item-label>{{ sellCon.aob }} {{ sellCon.targetValue }} </q-item-label>
+                            <q-item-label> {{ sellCon.targetValue }} </q-item-label>
                         </q-item-section>
 
                         </q-item>

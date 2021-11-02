@@ -10,13 +10,11 @@ const state = {
           timeframe: '5m',
           buyConditions: {'ID111':{
             indicator: 'RSI',
-            aob: 'below',
             targetValue: 20,
             conditionMet: false
           }},
           sellConditions: {'ID121':{
             indicator: 'RSI',
-            aob: 'above',
             targetValue: 80,
             conditionMet: false
           } }
@@ -29,13 +27,11 @@ const state = {
           timeframe: '5m',
           buyConditions: {'ID211':{
             indicator: 'RSI',
-            aob: 'below',
             targetValue: 20,
             conditionMet: false
           }},
           sellConditions: {'ID221':{
             indicator: 'RSI',
-            aob: 'above',
             targetValue: 80,
             conditionMet: false
           }}
@@ -48,13 +44,11 @@ const state = {
           timeframe: '5m',
           buyConditions: {'ID311':{
             indicator: 'RSI',
-            aob: 'below',
             targetValue: 20,
             conditionMet: false
           }},
           sellConditions: {'ID321':{
             indicator: 'SMA',
-            aob: 'above',
             targetValue: 60,
             conditionMet: false
           }}

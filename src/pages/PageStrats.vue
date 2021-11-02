@@ -37,7 +37,7 @@ import { mapGetters } from 'vuex'
 export default {
   data() {
     return {
-      showAddStrat: false
+      showAddStrat: true
     }
   },
     computed: {
