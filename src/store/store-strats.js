@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { uid } from 'quasar'
 
 const state = {
     strats: {
@@ -65,6 +66,14 @@ const mutations = {
     },
     deleteStrat(state, id){
       Vue.delete(state.strats, id)
+    },
+    addStrat(state, payload) {
+      let strat = payload.strat
+      let buyCon = payload.buyCondition
+      let sellCon = payload.sellCondition
+      Vue.set(state.strats, strat.id, strat.strat)
+      Vue.set(state.strats[strat.id].buyConditions, buyCon.id, buyCon.buyCondition)
+      Vue.set(state.strats[strat.id].sellConditions, sellCon.id, sellCon.sellCondition)
     }
 }
 
@@ -74,6 +83,31 @@ const actions = {
     },
     deleteStrat({ commit }, id) {
       commit('deleteStrat', id)
+    },
+    addStrat({ commit }, payload) {
+      let stratId = uid()
+      let buyConID = uid()
+      let sellConID = uid()
+      let newStrat = {
+        id: stratId,
+        strat: payload.strat
+      }
+      let newBuyCon = {
+        id : buyConID,
+        buyCondition: payload.buyCon
+      }
+      let newSellCon = {
+        id : sellConID,
+        sellCondition: payload.sellCon
+      }
+      let newPayload = {
+        strat: newStrat,
+        buyCondition: newBuyCon,
+        sellCondition: newSellCon
+      }
+    /*   Object.assign(newStrat.strat.buyCon, newBuyCon)
+      Object.assign(newStrat.strat.sellCon, newSellCon) */
+      commit('addStrat', newPayload)
     }
 
 }

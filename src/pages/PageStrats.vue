@@ -14,7 +14,7 @@
       
     </q-list>
 
-    <div class="float-bottom text-center">
+    <div class="fixed-bottom q-mb-xl text-center">
       <q-btn
         @click="showAddStrat = true"
         round
@@ -32,12 +32,12 @@
 </template>
 
 <script>
-import AddStrat from 'components/Strats/AddStrat.vue'
 import { mapGetters } from 'vuex'
+
 export default {
   data() {
     return {
-      showAddStrat: true
+      showAddStrat: false
     }
   },
     computed: {
@@ -46,7 +46,6 @@ export default {
     components: {
       'strat': require('components/Strats/Strat.vue').default,
       'add-strat': require('components/Strats/AddStrat.vue').default
-      
     }
   }
 </script>

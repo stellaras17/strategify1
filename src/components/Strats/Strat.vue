@@ -3,13 +3,22 @@
         <q-banner class="bg-primary text-secondary ">
             {{ strat.name}}
             <q-btn
-            @click="promptToDelete(id)"
+              @click="promptToDelete(id)"
               class="float-right"
               dense
               flat
               round
               color="secondary"
               icon="delete" />
+              
+            <q-btn
+              @click="showEditStrat = true"
+              class="float-right"
+              dense
+              flat
+              round
+              color="secondary"
+              icon="edit" />
             </q-banner>
 
         <q-item class="bg-white">
@@ -89,10 +98,11 @@
                     </q-item-section>
                 </div>
             </div>
-
-            
-            
             </div>
+
+        <q-dialog v-model="showEditStrat">
+         <edit-strat />
+        </q-dialog>
 
         </q-item>
     </div>
@@ -102,6 +112,11 @@
 import { mapActions } from 'vuex'
 
 export default {
+    data() {
+        return {
+            showEditStrat: false
+        }
+    },
     props: ['strat', 'id'],
     methods: {
         ...mapActions('strats', ['updateStrat', 'deleteStrat']),
@@ -117,6 +132,9 @@ export default {
                 
             
         }
+    },
+    components: {
+        'edit-strat': require('components/Strats/EditStrat.vue').default
     }
 }
 </script>
