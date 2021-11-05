@@ -13,6 +13,11 @@ const state = {
             indicator: 'RSI',
             targetValue: 20,
             conditionMet: false
+          },
+          'ID112':{
+            indicator: 'RSI',
+            targetValue: 20,
+            conditionMet: false
           }},
           sellConditions: {'ID121':{
             indicator: 'RSI',
@@ -105,8 +110,6 @@ const actions = {
         buyCondition: newBuyCon,
         sellCondition: newSellCon
       }
-    /*   Object.assign(newStrat.strat.buyCon, newBuyCon)
-      Object.assign(newStrat.strat.sellCon, newSellCon) */
       commit('addStrat', newPayload)
     }
 

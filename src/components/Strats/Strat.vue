@@ -66,10 +66,11 @@
                     </q-item-section>
 
                     <q-item-section>
-                        <q-item-label>{{ buyCon.aob }} {{ buyCon.targetValue }}</q-item-label>
+                        <q-item-label> {{ buyCon.targetValue }}</q-item-label>
                     </q-item-section>
 
                     </q-item>
+                    <q-separator />
                 </q-list>
                 </q-item-section>
                 </div>
@@ -94,6 +95,7 @@
                         </q-item-section>
 
                         </q-item>
+                        <q-separator />
                     </q-list>
                     </q-item-section>
                 </div>
@@ -101,7 +103,7 @@
             </div>
 
         <q-dialog v-model="showEditStrat">
-         <edit-strat />
+         <edit-strat :strat="strat" :id="id" />
         </q-dialog>
 
         </q-item>

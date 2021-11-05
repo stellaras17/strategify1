@@ -2,13 +2,16 @@
   <q-page padding class="bg-info">
     
     <q-list
-      >
+      seperated>
       <strat
       v-for="(strat, key) in strats"
       :key="key"
       :strat="strat"
       :id="key"
       class="q-mb-md">
+
+      <q-separator />
+      
       </strat>
 
       

@@ -2,7 +2,7 @@
   <q-card class="newStratCard bg-info">
     <form @submit.prevent="submitForm">
         <q-card-section class="row">
-          <div class="text-h6">Create new Strategy</div>
+          <div class="text-h6">Edit Strategy</div>
           <q-space/>
           <q-btn
             v-close-popup
@@ -66,14 +66,17 @@
         </q-card-section> 
       </div>
 
-      <h6 class="q-ma-md">BUY CONDITION</h6>
+      <h6 class="q-ma-md">BUY CONDITIONS</h6>
 
-      <div class="row q-mb-md">
-        <q-card-section class="q-pt-none">
+     <div
+        class="row q-mb-md"
+        v-for="(condition, key) in stratToSubmit.buyConditions"
+        :key="key">
+        <q-card-section class="q-pt-none" >
          <q-select
             outlined
             class="selectWidth bg-white"
-            v-model="newBuyCondition.indicator"
+            v-model="condition.indicator"
             :options="indicatorOptions"
             label="Indicator" 
             :rules="[val => !!val || 'Required']"
@@ -85,7 +88,7 @@
           <q-input
             outlined
             class="selectWidth bg-white"
-            v-model="newBuyCondition.targetValue"
+            v-model="condition.targetValue"
             type="number"
             label="Target value" 
             :rules="[val => !!val || 'Required']"
@@ -94,14 +97,17 @@
         </q-card-section> 
       </div>
 
-      <h6 class="q-ma-md">SELL CONDITION</h6>
+      <h6 class="q-ma-md">SELL CONDITIONS</h6>
 
-      <div class="row q-mb-md">
+      <div
+        class="row q-mb-md"
+        v-for="(condition, key) in stratToSubmit.sellConditions"
+        :key="key">
         <q-card-section class="q-pt-none">
          <q-select
             outlined
             class="selectWidth bg-white"
-            v-model="newSellCondition.indicator"
+            v-model="condition.indicator"
             :options="indicatorOptions"
             label="Indicator" 
             :rules="[val => !!val || 'Required']"
@@ -113,7 +119,7 @@
           <q-input
             outlined
             class="selectWidth bg-white"
-            v-model="newSellCondition.targetValue"
+            v-model="condition.targetValue"
             type="number"
             label="Target value" 
             :rules="[val => !!val || 'Required']"
@@ -133,6 +139,7 @@
 import { mapActions } from 'vuex'
 
 export default {
+  props: ['strat','id'],
   data() {
     return {
       stratToSubmit: {
@@ -143,16 +150,6 @@ export default {
           timeframe: '',
           buyConditions: {},
           sellConditions: {}
-      },
-      newBuyCondition: {
-        indicator: '',
-        targetValue: 0,
-        conditionMet: false
-      },
-      newSellCondition: {
-        indicator: '',
-        targetValue: 0,
-        conditionMet: false
       },
       tickerOptions: [
         'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'BTCETH', 'ZILUSDT'
@@ -166,7 +163,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('strats', ['addStrat']),
+    ...mapActions('strats', ['updateStrat']),
     submitForm() {
       this.$refs.validation.validate()
       if (!this.$refs.validation.hasError) {
@@ -175,12 +172,15 @@ export default {
     },
     submitStrat() {
       let payload = {
-        strat: this.stratToSubmit, 
-        buyCon: this.newBuyCondition, 
-        sellCon: this.newSellCondition
+        id: this.id,
+        updates: this.stratToSubmit
       }
-      this.addStrat(payload)
+      console.log(payload);
+      this.updateStrat(payload)
     }
+  },
+  mounted() {
+    this.stratToSubmit = Object.assign({}, this.strat)
   }
 }
 </script>
