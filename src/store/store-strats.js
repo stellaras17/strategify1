@@ -9,21 +9,16 @@ const state = {
           ticker: 'BTCUSDT',
           amount: 100,
           timeframe: '5m',
-          buyConditions: {'ID111':{
+          buyConditions: {
             indicator: 'RSI',
             targetValue: 20,
             conditionMet: false
           },
-          'ID112':{
-            indicator: 'RSI',
-            targetValue: 20,
-            conditionMet: false
-          }},
-          sellConditions: {'ID121':{
+          sellConditions: {
             indicator: 'RSI',
             targetValue: 80,
             conditionMet: false
-          } }
+          }
         },
         'ID2': {
           name:'ETH RSI',
@@ -31,16 +26,16 @@ const state = {
           ticker: 'ETHUSDT',
           amount: 100,
           timeframe: '5m',
-          buyConditions: {'ID211':{
+          buyConditions: {
             indicator: 'RSI',
             targetValue: 20,
             conditionMet: false
-          }},
-          sellConditions: {'ID221':{
+          },
+          sellConditions: {
             indicator: 'RSI',
             targetValue: 80,
             conditionMet: false
-          }}
+          }
         },
         'ID3': {
           name:'ZIL RSI',
@@ -48,16 +43,16 @@ const state = {
           ticker: 'ZILUSDT',
           amount: 100,
           timeframe: '5m',
-          buyConditions: {'ID311':{
+          buyConditions: {
             indicator: 'RSI',
             targetValue: 20,
             conditionMet: false
-          }},
-          sellConditions: {'ID321':{
+          },
+          sellConditions: {
             indicator: 'SMA',
             targetValue: 60,
             conditionMet: false
-          }}
+          }
         },
     
     }
@@ -68,17 +63,13 @@ const state = {
 const mutations = {
     updateStrat(state, payload){
         Object.assign(state.strats[payload.id], payload.updates)
+        //console.log(state.strats[payload.id]);
     },
     deleteStrat(state, id){
       Vue.delete(state.strats, id)
     },
     addStrat(state, payload) {
-      let strat = payload.strat
-      let buyCon = payload.buyCondition
-      let sellCon = payload.sellCondition
-      Vue.set(state.strats, strat.id, strat.strat)
-      Vue.set(state.strats[strat.id].buyConditions, buyCon.id, buyCon.buyCondition)
-      Vue.set(state.strats[strat.id].sellConditions, sellCon.id, sellCon.sellCondition)
+      Vue.set(state.strats, payload.id, payload.strat)
     }
 }
 
@@ -91,26 +82,11 @@ const actions = {
     },
     addStrat({ commit }, payload) {
       let stratId = uid()
-      let buyConID = uid()
-      let sellConID = uid()
       let newStrat = {
         id: stratId,
         strat: payload.strat
       }
-      let newBuyCon = {
-        id : buyConID,
-        buyCondition: payload.buyCon
-      }
-      let newSellCon = {
-        id : sellConID,
-        sellCondition: payload.sellCon
-      }
-      let newPayload = {
-        strat: newStrat,
-        buyCondition: newBuyCon,
-        sellCondition: newSellCon
-      }
-      commit('addStrat', newPayload)
+      commit('addStrat', newStrat)
     }
 
 }

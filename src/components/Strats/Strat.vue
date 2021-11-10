@@ -56,22 +56,18 @@
                 </q-item-section>
 
                 <q-item-section >
-                    <q-list
-                    v-for="(buyCon, key) in strat.buyConditions"
-                    :key="key"
-                    >
+                    
                     <q-item >
                     <q-item-section>
-                        <q-item-label>Indicator: {{ buyCon.indicator }}</q-item-label>
+                        <q-item-label>Indicator: {{ strat.buyConditions.indicator }}</q-item-label>
                     </q-item-section>
 
                     <q-item-section>
-                        <q-item-label> {{ buyCon.targetValue }}</q-item-label>
+                        <q-item-label> {{ strat.buyConditions.targetValue }}</q-item-label>
                     </q-item-section>
 
                     </q-item>
-                    <q-separator />
-                </q-list>
+                    
                 </q-item-section>
                 </div>
 
@@ -81,29 +77,23 @@
                 </q-item-section>
 
                 <q-item-section >
-                        <q-list
-                        v-for="(sellCon, key) in strat.sellConditions"
-                        :key="key"
-                        >
                         <q-item >
                         <q-item-section>
-                            <q-item-label>Indicator: {{ sellCon.indicator }}</q-item-label>
+                            <q-item-label>Indicator: {{ strat.sellConditions.indicator }}</q-item-label>
                         </q-item-section>
 
                         <q-item-section>
-                            <q-item-label> {{ sellCon.targetValue }} </q-item-label>
+                            <q-item-label> {{ strat.sellConditions.targetValue }} </q-item-label>
                         </q-item-section>
 
                         </q-item>
-                        <q-separator />
-                    </q-list>
                     </q-item-section>
                 </div>
             </div>
             </div>
 
         <q-dialog v-model="showEditStrat">
-         <edit-strat :strat="strat" :id="id" />
+         <edit-strat :strat="strat" :id="id" @close="showEditStrat = false" />
         </q-dialog>
 
         </q-item>

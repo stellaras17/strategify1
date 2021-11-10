@@ -22,8 +22,8 @@
             outlined
             v-model="stratToSubmit.name"
             label="Strategy Name"
-            :rules="[val => !!val || 'Strategy needs a name']"
-            ref="validation"
+            :rules="[val => val != '' || 'Strategy needs a name']"
+            ref="name"
             hint="*" />
         </q-card-section> 
 
@@ -36,8 +36,8 @@
             v-model="stratToSubmit.ticker"
             :options="tickerOptions"
             label="Ticker"
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val != '' || 'Required']"
+            ref="ticker"
             hint="*" />
         </q-card-section>
           
@@ -48,8 +48,8 @@
             v-model="stratToSubmit.timeframe"
             :options="timeframeOptions"
             label="Timeframe" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val != '' || 'Required']"
+            ref="timeframe"
             hint="*"/>
         </q-card-section>
           
@@ -60,8 +60,8 @@
             class="selectWidth bg-white"
             v-model="stratToSubmit.amount"
             label="Amount" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val > 0 || 'Required']"
+            ref="amount"
             hint="*"/>
         </q-card-section> 
       </div>
@@ -73,11 +73,11 @@
          <q-select
             outlined
             class="selectWidth bg-white"
-            v-model="newBuyCondition.indicator"
+            v-model="stratToSubmit.buyConditions.indicator"
             :options="indicatorOptions"
             label="Indicator" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val != '' || 'Required']"
+            ref="buyindicator"
             hint="*"/>
         </q-card-section>
 
@@ -85,11 +85,11 @@
           <q-input
             outlined
             class="selectWidth bg-white"
-            v-model="newBuyCondition.targetValue"
+            v-model="stratToSubmit.buyConditions.targetValue"
             type="number"
             label="Target value" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val > 0 || 'Required']"
+            ref="buyvalue"
             hint="*"/>
         </q-card-section> 
       </div>
@@ -101,11 +101,11 @@
          <q-select
             outlined
             class="selectWidth bg-white"
-            v-model="newSellCondition.indicator"
+            v-model="stratToSubmit.sellConditions.indicator"
             :options="indicatorOptions"
             label="Indicator" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val != '' || 'Required']"
+            ref="sellindicator"
             hint="*"/>
         </q-card-section>
 
@@ -113,17 +113,17 @@
           <q-input
             outlined
             class="selectWidth bg-white"
-            v-model="newSellCondition.targetValue"
+            v-model="stratToSubmit.sellConditions.targetValue"
             type="number"
             label="Target value" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val >0|| 'Required']"
+            ref="sellvalue"
             hint="*"/>
         </q-card-section> 
       </div>
     </div>
         <q-card-actions align="right">
-          <q-btn class="q-ma-xs buttonstyle" type="submit" label="SAVE" color="primary" v-close-popup />
+          <q-btn class="q-ma-xs buttonstyle" type="submit" label="SAVE" color="primary"  />
         </q-card-actions>
       </form>
       </q-card>
@@ -141,18 +141,16 @@ export default {
           ticker: '',
           amount: 0,
           timeframe: '',
-          buyConditions: {},
-          sellConditions: {}
-      },
-      newBuyCondition: {
-        indicator: '',
-        targetValue: 0,
-        conditionMet: false
-      },
-      newSellCondition: {
-        indicator: '',
-        targetValue: 0,
-        conditionMet: false
+          buyConditions: {
+            indicator: '',
+            targetValue: 0,
+            conditionMet: false
+          },
+          sellConditions: {
+            indicator: '',
+            targetValue: 0,
+            conditionMet: false
+          }
       },
       tickerOptions: [
         'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'BTCETH', 'ZILUSDT'
@@ -168,19 +166,27 @@ export default {
   methods: {
     ...mapActions('strats', ['addStrat']),
     submitForm() {
-      this.$refs.validation.validate()
-      if (!this.$refs.validation.hasError) {
+      this.$refs.name.validate()
+      this.$refs.ticker.validate()
+      this.$refs.amount.validate()
+      this.$refs.timeframe.validate()
+      this.$refs.buyindicator.validate()
+      this.$refs.buyvalue.validate()
+      this.$refs.sellindicator.validate()
+      this.$refs.sellvalue.validate()
+      if (!this.$refs.name.hasError && !this.$refs.ticker.hasError && !this.$refs.amount.hasError && !this.$refs.timeframe.hasError &&
+      !this.$refs.buyindicator.hasError && !this.$refs.buyvalue.hasError && !this.$refs.sellindicator.hasError && !this.$refs.sellvalue.hasError) {
         this.submitStrat()
       }
     },
     submitStrat() {
       let payload = {
-        strat: this.stratToSubmit, 
-        buyCon: this.newBuyCondition, 
-        sellCon: this.newSellCondition
+        strat: this.stratToSubmit
       }
       this.addStrat(payload)
+      this.$emit('close')
     }
+    
   }
 }
 </script>

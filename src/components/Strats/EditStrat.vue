@@ -22,8 +22,8 @@
             outlined
             v-model="stratToSubmit.name"
             label="Strategy Name"
-            :rules="[val => !!val || 'Strategy needs a name']"
-            ref="validation"
+            :rules="[val => val!= '' || 'Strategy needs a name']"
+            ref="name"
             hint="*" />
         </q-card-section> 
 
@@ -36,8 +36,8 @@
             v-model="stratToSubmit.ticker"
             :options="tickerOptions"
             label="Ticker"
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val!='' || 'Required']"
+            ref="ticker"
             hint="*" />
         </q-card-section>
           
@@ -48,8 +48,8 @@
             v-model="stratToSubmit.timeframe"
             :options="timeframeOptions"
             label="Timeframe" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val!='' || 'Required']"
+            ref="timeframe"
             hint="*"/>
         </q-card-section>
           
@@ -60,8 +60,8 @@
             class="selectWidth bg-white"
             v-model="stratToSubmit.amount"
             label="Amount" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val>0 || 'Required']"
+            ref="amount"
             hint="*"/>
         </q-card-section> 
       </div>
@@ -69,18 +69,16 @@
       <h6 class="q-ma-md">BUY CONDITIONS</h6>
 
      <div
-        class="row q-mb-md"
-        v-for="(condition, key) in stratToSubmit.buyConditions"
-        :key="key">
+        class="row q-mb-md">
         <q-card-section class="q-pt-none" >
          <q-select
             outlined
             class="selectWidth bg-white"
-            v-model="condition.indicator"
+            v-model="buyCons.indicator"
             :options="indicatorOptions"
             label="Indicator" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val!='' || 'Required']"
+            ref="buyindicator"
             hint="*"/>
         </q-card-section>
 
@@ -88,11 +86,11 @@
           <q-input
             outlined
             class="selectWidth bg-white"
-            v-model="condition.targetValue"
+            v-model="buyCons.targetValue"
             type="number"
             label="Target value" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val>0 || 'Required']"
+            ref="buyvalue"
             hint="*"/>
         </q-card-section> 
       </div>
@@ -100,18 +98,16 @@
       <h6 class="q-ma-md">SELL CONDITIONS</h6>
 
       <div
-        class="row q-mb-md"
-        v-for="(condition, key) in stratToSubmit.sellConditions"
-        :key="key">
+        class="row q-mb-md">
         <q-card-section class="q-pt-none">
          <q-select
             outlined
             class="selectWidth bg-white"
-            v-model="condition.indicator"
+            v-model="sellCons.indicator"
             :options="indicatorOptions"
             label="Indicator" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val!='' || 'Required']"
+            ref="sellndicator"
             hint="*"/>
         </q-card-section>
 
@@ -119,17 +115,17 @@
           <q-input
             outlined
             class="selectWidth bg-white"
-            v-model="condition.targetValue"
+            v-model="sellCons.targetValue"
             type="number"
             label="Target value" 
-            :rules="[val => !!val || 'Required']"
-            ref="validation"
+            :rules="[val => val>0 || 'Required']"
+            ref="sellvalue"
             hint="*"/>
         </q-card-section> 
       </div>
     </div>
         <q-card-actions align="right">
-          <q-btn class="q-ma-xs buttonstyle" type="submit" label="SAVE" color="primary" v-close-popup />
+          <q-btn class="q-ma-xs buttonstyle" type="submit" label="SAVE" color="primary" />
         </q-card-actions>
       </form>
       </q-card>
@@ -148,8 +144,26 @@ export default {
           ticker: '',
           amount: 0,
           timeframe: '',
-          buyConditions: {},
-          sellConditions: {}
+          buyConditions: {
+            indicator: '',
+            targetValue: 0,
+            conditionMet: false
+          },
+          sellConditions: {
+            indicator: '',
+            targetValue: 0,
+            conditionMet: false
+          }
+      },
+      buyCons: {
+        indicator: '',
+        targetValue: 0,
+        conditionMet: false
+      },
+      sellCons: {
+        indicator: '',
+        targetValue: 0,
+        conditionMet: false
       },
       tickerOptions: [
         'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'BTCETH', 'ZILUSDT'
@@ -165,22 +179,36 @@ export default {
   methods: {
     ...mapActions('strats', ['updateStrat']),
     submitForm() {
-      this.$refs.validation.validate()
-      if (!this.$refs.validation.hasError) {
+      this.$refs.name.validate()
+      this.$refs.ticker.validate()
+      this.$refs.amount.validate()
+      this.$refs.timeframe.validate()
+      this.$refs.buyindicator.validate()
+      this.$refs.buyvalue.validate()
+      this.$refs.sellindicator.validate()
+      this.$refs.sellvalue.validate()
+      if (!this.$refs.name.hasError && !this.$refs.ticker.hasError && !this.$refs.amount.hasError && !this.$refs.timeframe.hasError &&
+      !this.$refs.buyindicator.hasError && !this.$refs.buyvalue.hasError && !this.$refs.sellindicator.hasError &&
+       !this.$refs.sellvalue.hasError) {
         this.submitStrat()
       }
     },
     submitStrat() {
+      console.log(this.buyCons);
+      Object.assign(this.stratToSubmit.buyConditions, this.buyCons)
+      Object.assign(this.stratToSubmit.sellConditions, this.sellCons)
       let payload = {
         id: this.id,
         updates: this.stratToSubmit
       }
-      console.log(payload);
       this.updateStrat(payload)
+      this.$emit('close')
     }
   },
   mounted() {
     this.stratToSubmit = Object.assign({}, this.strat)
+    this.buyCons = Object.assign({}, this.strat.buyConditions)
+    this.sellCons = Object.assign({}, this.strat.sellConditions)
   }
 }
 </script>

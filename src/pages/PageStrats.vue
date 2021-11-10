@@ -28,7 +28,7 @@
     </div>
 
   <q-dialog v-model="showAddStrat">
-      <add-strat />
+      <add-strat @close="showAddStrat = false" />
     </q-dialog>
 
   </q-page>
