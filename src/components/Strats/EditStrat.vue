@@ -22,7 +22,7 @@
             outlined
             v-model="stratToSubmit.name"
             label="Strategy Name"
-            :rules="[val => val!= '' || 'Strategy needs a name']"
+            :rules="[val => val != '' || 'Strategy needs a name']"
             ref="name"
             hint="*" />
         </q-card-section> 
@@ -36,7 +36,7 @@
             v-model="stratToSubmit.ticker"
             :options="tickerOptions"
             label="Ticker"
-            :rules="[val => val!='' || 'Required']"
+            :rules="[val => val != '' || 'Required']"
             ref="ticker"
             hint="*" />
         </q-card-section>
@@ -48,7 +48,7 @@
             v-model="stratToSubmit.timeframe"
             :options="timeframeOptions"
             label="Timeframe" 
-            :rules="[val => val!='' || 'Required']"
+            :rules="[val => val != '' || 'Required']"
             ref="timeframe"
             hint="*"/>
         </q-card-section>
@@ -60,7 +60,7 @@
             class="selectWidth bg-white"
             v-model="stratToSubmit.amount"
             label="Amount" 
-            :rules="[val => val>0 || 'Required']"
+            :rules="[val => val > 0 || 'Required']"
             ref="amount"
             hint="*"/>
         </q-card-section> 
@@ -74,10 +74,10 @@
          <q-select
             outlined
             class="selectWidth bg-white"
-            v-model="buyCons.indicator"
+            v-model="newBuyCon.indicator"
             :options="indicatorOptions"
             label="Indicator" 
-            :rules="[val => val!='' || 'Required']"
+            :rules="[val => val != '' || 'Required']"
             ref="buyindicator"
             hint="*"/>
         </q-card-section>
@@ -86,10 +86,10 @@
           <q-input
             outlined
             class="selectWidth bg-white"
-            v-model="buyCons.targetValue"
+            v-model="newBuyCon.targetValue"
             type="number"
             label="Target value" 
-            :rules="[val => val>0 || 'Required']"
+            :rules="[val => val > 0 || 'Required']"
             ref="buyvalue"
             hint="*"/>
         </q-card-section> 
@@ -103,11 +103,11 @@
          <q-select
             outlined
             class="selectWidth bg-white"
-            v-model="sellCons.indicator"
+            v-model="newSellCon.indicator"
             :options="indicatorOptions"
-            label="Indicator" 
-            :rules="[val => val!='' || 'Required']"
-            ref="sellndicator"
+            label="Indicator"
+            :rules="[val => val != '' || 'Required']"
+            ref="sellindicator"
             hint="*"/>
         </q-card-section>
 
@@ -115,17 +115,17 @@
           <q-input
             outlined
             class="selectWidth bg-white"
-            v-model="sellCons.targetValue"
+            v-model="newSellCon.targetValue"
             type="number"
             label="Target value" 
-            :rules="[val => val>0 || 'Required']"
+            :rules="[val => val >0|| 'Required']"
             ref="sellvalue"
             hint="*"/>
         </q-card-section> 
       </div>
     </div>
         <q-card-actions align="right">
-          <q-btn class="q-ma-xs buttonstyle" type="submit" label="SAVE" color="primary" />
+          <q-btn class="q-ma-xs buttonstyle" type="submit" label="SAVE" color="primary" v-close-popup />
         </q-card-actions>
       </form>
       </q-card>
@@ -144,23 +144,15 @@ export default {
           ticker: '',
           amount: 0,
           timeframe: '',
-          buyConditions: {
-            indicator: '',
-            targetValue: 0,
-            conditionMet: false
-          },
-          sellConditions: {
-            indicator: '',
-            targetValue: 0,
-            conditionMet: false
-          }
+          buyConditions: {},
+          sellConditions: {}
       },
-      buyCons: {
+      newBuyCon: {
         indicator: '',
         targetValue: 0,
         conditionMet: false
       },
-      sellCons: {
+      newSellCon: {
         indicator: '',
         targetValue: 0,
         conditionMet: false
@@ -177,7 +169,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('strats', ['updateStrat']),
+    ...mapActions('strats', ['updateStrat', 'updateSellCons', 'updateBuyCons']),
     submitForm() {
       this.$refs.name.validate()
       this.$refs.ticker.validate()
@@ -188,27 +180,32 @@ export default {
       this.$refs.sellindicator.validate()
       this.$refs.sellvalue.validate()
       if (!this.$refs.name.hasError && !this.$refs.ticker.hasError && !this.$refs.amount.hasError && !this.$refs.timeframe.hasError &&
-      !this.$refs.buyindicator.hasError && !this.$refs.buyvalue.hasError && !this.$refs.sellindicator.hasError &&
-       !this.$refs.sellvalue.hasError) {
+      !this.$refs.buyindicator.hasError && !this.$refs.buyvalue.hasError && !this.$refs.sellindicator.hasError && !this.$refs.sellvalue.hasError) {
         this.submitStrat()
       }
     },
     submitStrat() {
-      console.log(this.buyCons);
-      Object.assign(this.stratToSubmit.buyConditions, this.buyCons)
-      Object.assign(this.stratToSubmit.sellConditions, this.sellCons)
       let payload = {
         id: this.id,
         updates: this.stratToSubmit
       }
+      let payload2 = {
+        id: this.id,
+        updates: this.newBuyCon
+      }
+      let payload3 = {
+        id: this.id,
+        updates: this.newSellCon
+      }
       this.updateStrat(payload)
-      this.$emit('close')
+      this.updateBuyCons(payload2)
+      this.updateSellCons(payload3)
     }
   },
   mounted() {
     this.stratToSubmit = Object.assign({}, this.strat)
-    this.buyCons = Object.assign({}, this.strat.buyConditions)
-    this.sellCons = Object.assign({}, this.strat.sellConditions)
+    this.newBuyCon = Object.assign({}, this.strat.buyConditions)
+    this.newSellCon = Object.assign({}, this.strat.sellConditions)
   }
 }
 </script>

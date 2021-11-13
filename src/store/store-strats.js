@@ -65,6 +65,12 @@ const mutations = {
         Object.assign(state.strats[payload.id], payload.updates)
         //console.log(state.strats[payload.id]);
     },
+    updateBuyCons(state, payload){
+        Object.assign(state.strats[payload.id].buyConditions, payload.updates)       
+    },
+    updateSellCons(state, payload){
+        Object.assign(state.strats[payload.id].sellConditions, payload.updates)
+    },
     deleteStrat(state, id){
       Vue.delete(state.strats, id)
     },
@@ -76,6 +82,12 @@ const mutations = {
 const actions = {
     updateStrat({ commit }, payload) {
       commit('updateStrat', payload)
+    },
+    updateBuyCons({ commit }, payload) {
+      commit('updateBuyCons', payload)
+    },
+    updateSellCons({ commit }, payload) {
+      commit('updateSellCons', payload)
     },
     deleteStrat({ commit }, id) {
       commit('deleteStrat', id)
