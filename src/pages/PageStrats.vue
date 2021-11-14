@@ -1,6 +1,10 @@
 <template>
   <q-page padding class="bg-info">
 
+    <div v-if="Object.keys(stratsActive).length" >
+    <span class="headerStyle"> Active Strategies</span>
+    <q-separator class="q-mb-sm" color="primary"/>
+    </div>
     <q-list
       seperated>
       <strat
@@ -12,6 +16,10 @@
       </strat>
     </q-list>
 
+    <div v-if="Object.keys(stratsInactive).length" class="headerStyle">
+    <span> Inactive Strategies</span>
+    <q-separator class="q-mb-sm" color="primary"/>
+    </div>
     <q-list
       seperated>
       <strat
@@ -60,5 +68,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
+  .headerStyle {
+    font-size: 18px;
+    color: #1E2329;
+  }
 </style>

@@ -7,7 +7,13 @@
           Strategify
         </q-toolbar-title>
 
-        
+        <q-btn
+          color="secondary"
+          icon-right="account_circle"
+          label="LOG OUT" 
+          class="absolute-right"
+          flat
+          to="/auth"/>
       </q-toolbar>
     </q-header>
 
