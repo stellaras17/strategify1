@@ -104,8 +104,25 @@ const actions = {
 }
 
 const getters = {
-    strats: (state) => {
-        return state.strats
+    stratsInactive: (state) => {
+      let strats = {}
+      Object.keys(state.strats).forEach(function(key) {
+        let strat = state.strats[key]
+        if (!strat.active) {
+          strats[key] = strat
+        }
+      })
+      return strats
+    },
+    stratsActive: (state) => {
+      let strats = {}
+      Object.keys(state.strats).forEach(function(key) {
+        let strat = state.strats[key]
+        if (strat.active) {
+          strats[key] = strat
+        }
+      })
+      return strats
     }
 } 
 

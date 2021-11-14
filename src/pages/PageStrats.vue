@@ -1,20 +1,26 @@
 <template>
   <q-page padding class="bg-info">
-    
+
     <q-list
       seperated>
       <strat
-      v-for="(strat, key) in strats"
+      v-for="(strat, key) in stratsActive"
       :key="key"
       :strat="strat"
       :id="key"
       class="q-mb-md">
-
-      <q-separator />
-      
       </strat>
+    </q-list>
 
-      
+    <q-list
+      seperated>
+      <strat
+      v-for="(strat, key) in stratsInactive"
+      :key="key"
+      :strat="strat"
+      :id="key"
+      class="q-mb-md">
+      </strat>
     </q-list>
 
     <div class="fixed-bottom q-mb-xl text-center">
@@ -28,7 +34,7 @@
     </div>
 
   <q-dialog v-model="showAddStrat">
-      <add-strat @close="showAddStrat = false" />
+      <add-strat />
     </q-dialog>
 
   </q-page>
@@ -44,7 +50,7 @@ export default {
     }
   },
     computed: {
-      ...mapGetters('strats', ['strats'])
+      ...mapGetters('strats', ['stratsInactive', 'stratsActive'])
     },
     components: {
       'strat': require('components/Strats/Strat.vue').default,
