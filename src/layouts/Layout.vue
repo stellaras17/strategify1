@@ -8,16 +8,29 @@
         </q-toolbar-title>
 
         <q-btn
+          v-if="loggedIn"
           color="secondary"
           icon-right="account_circle"
           label="LOG OUT" 
           class="absolute-right"
           flat
+          @click="logOutUser"
+          />
+
+        <q-btn
+          v-if="!loggedIn"
+          color="secondary"
+          icon-right="account_circle"
+          label="LOG IN" 
+          class="absolute-right"
+          flat
           to="/auth"/>
+
       </q-toolbar>
     </q-header>
 
     <q-drawer
+      v-if="loggedIn"
       :width="250"
       v-model="leftDrawerOpen"
       show-if-above
@@ -47,6 +60,7 @@
             <q-item-label>My Strategies</q-item-label>
           </q-item-section>
         </q-item>
+
         <q-item
           to="/settings"
           clickable
@@ -73,6 +87,7 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
 
 export default {
   data () {
@@ -80,6 +95,12 @@ export default {
       leftDrawerOpen: false,
       
     }
+  },
+  computed: {
+    ...mapState('auth', ['loggedIn'])
+  },
+  methods: {
+    ...mapActions('auth', ['logOutUser'])
   }
 }
 </script>
