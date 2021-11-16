@@ -19,7 +19,7 @@ const actions = {
             console.log(response);
         })
         .catch(error => {
-            alert(error);
+            alert(error.message);
         })
     },
     loginUser({}, payload) {
@@ -28,7 +28,7 @@ const actions = {
             console.log(response);
         })
         .catch(error => {
-            alert(error);
+            alert(error.message);
         })
     },
     logOutUser(){
