@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import { uid } from 'quasar'
+import { firebaseDb, firebaseAuth } from 'src/boot/firebase'
 
 const state = {
     strats: {
-        'ID1': {
+        /* 'ID1': {
           name:'BTC RSI',
           active: false,
           ticker: 'BTCUSDT',
@@ -53,7 +54,7 @@ const state = {
             targetValue: 60,
             conditionMet: false
           }
-        },
+        }, */
     
     }
     
@@ -63,7 +64,6 @@ const state = {
 const mutations = {
     updateStrat(state, payload){
         Object.assign(state.strats[payload.id], payload.updates)
-        //console.log(state.strats[payload.id]);
     },
     updateBuyCons(state, payload){
         Object.assign(state.strats[payload.id].buyConditions, payload.updates)       
@@ -80,27 +80,77 @@ const mutations = {
 }
 
 const actions = {
-    updateStrat({ commit }, payload) {
-      commit('updateStrat', payload)
+    updateStrat({ dispatch }, payload) {
+      dispatch('dbUpdateStrat', payload)
     },
-    updateBuyCons({ commit }, payload) {
-      commit('updateBuyCons', payload)
+    updateBuyCons({ dispatch }, payload) {
+      dispatch('dbUpdateBuyCons', payload)
     },
-    updateSellCons({ commit }, payload) {
-      commit('updateSellCons', payload)
+    updateSellCons({ dispatch }, payload) {
+      dispatch('dbUpdateSellCons', payload)
     },
-    deleteStrat({ commit }, id) {
-      commit('deleteStrat', id)
+    deleteStrat({ dispatch }, id) {
+      dispatch('dbDeleteStrat', id)
     },
-    addStrat({ commit }, payload) {
+    addStrat({ dispatch }, payload) {
       let stratId = uid()
       let newStrat = {
         id: stratId,
         strat: payload.strat
       }
-      commit('addStrat', newStrat)
-    }
+      dispatch('dbAddStrat', newStrat)
+    },
+    dbReadData({commit}) {
+      let user = firebaseAuth.currentUser.uid
+      let userStrats = firebaseDb.ref('strats/' + user)
+      
+      userStrats.on('child_added', snapshot => {
+        let strat = snapshot.val()
+        let payload = {
+          id: snapshot.key,
+          strat: strat
+        }
+        commit('addStrat', payload)
+      })
 
+      userStrats.on('child_changed', snapshot => {
+        let strat = snapshot.val()
+        let payload = {
+          id: snapshot.key,
+          updates: strat
+        }
+        commit('updateStrat', payload)
+      })
+
+      userStrats.on('child_removed', snapshot => {
+        commit('deleteStrat', snapshot.key)
+      })
+    },
+    dbAddStrat({}, payload) {
+      let user = firebaseAuth.currentUser.uid
+      let stratRef = firebaseDb.ref('strats/'+ user + '/' + payload.id)
+      stratRef.set(payload.strat)
+    },
+    dbUpdateStrat({}, payload) {
+      let user = firebaseAuth.currentUser.uid
+      let stratRef = firebaseDb.ref('strats/'+ user + '/' + payload.id)
+      stratRef.update(payload.updates)
+    },
+    dbUpdateBuyCons({}, payload) {
+      let user = firebaseAuth.currentUser.uid
+      let stratRef = firebaseDb.ref('strats/'+ user + '/' + payload.id + '/buyConditions')
+      stratRef.update(payload.updates)
+    },
+    dbUpdateSellCons({}, payload) {
+      let user = firebaseAuth.currentUser.uid
+      let stratRef = firebaseDb.ref('strats/'+ user + '/' + payload.id + '/sellConditions')
+      stratRef.update(payload.updates)
+    },
+    dbDeleteStrat({}, stratId) {
+      let user = firebaseAuth.currentUser.uid
+      let stratRef = firebaseDb.ref('strats/'+ user + '/' + stratId)
+      stratRef.remove()
+    },
 }
 
 const getters = {
