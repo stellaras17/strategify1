@@ -2,6 +2,10 @@
   <q-page padding class="bg-info">
 
     <div>
+      <top-three />
+    </div>
+
+    <div>
       <chart />
     </div>
 
@@ -67,7 +71,8 @@ export default {
     components: {
       'strat': require('components/Strats/Strat.vue').default,
       'add-strat': require('components/Strats/AddStrat.vue').default,
-      'chart': require('components/Chart.vue').default
+      'top-three': require('src/components/TopThree.vue').default,
+      'chart': require('src/components/Chart.vue').default,
     }
   }
 </script>
