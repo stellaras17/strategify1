@@ -1,6 +1,10 @@
 <template>
   <q-page padding class="bg-info">
 
+    <div>
+      <chart />
+    </div>
+
     <div v-if="Object.keys(stratsActive).length" >
     <span class="headerStyle"> Active Strategies</span>
     <q-separator class="q-mb-sm" color="primary"/>
@@ -62,7 +66,8 @@ export default {
     },
     components: {
       'strat': require('components/Strats/Strat.vue').default,
-      'add-strat': require('components/Strats/AddStrat.vue').default
+      'add-strat': require('components/Strats/AddStrat.vue').default,
+      'chart': require('components/Chart.vue').default
     }
   }
 </script>
