@@ -1,5 +1,4 @@
 <template>
-    <div>
         <div class="row prices-div">
             <q-card class="my-card cursor-pointer" @click="goToURL('BTC')">
                 <q-card-section class="text-center text-weight-bold">
@@ -38,10 +37,6 @@
                 </q-card-section>
             </q-card>
         </div>
-
-        <div id="chart" class="q-mb-xl q-mt-xl chart" />
-
-    </div>
     
 </template>
 

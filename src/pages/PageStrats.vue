@@ -1,14 +1,10 @@
 <template>
   <q-page padding class="bg-info">
 
-    <div>
-      <top-three />
-    </div>
+    <top-three />
 
-    <div>
-      <chart />
-    </div>
-
+    <chart />
+    
     <div v-if="Object.keys(stratsActive).length" >
     <span class="headerStyle"> Active Strategies</span>
     <q-separator class="q-mb-sm" color="primary"/>
