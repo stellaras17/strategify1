@@ -1,9 +1,9 @@
 <template>
   <q-page padding class="bg-info">
 
-    <top-three />
+    <top-three @recieveTicker="getChartTicker" />
 
-    <chart />
+    <chart ref="chart"/>
     
     <div v-if="Object.keys(stratsActive).length" >
     <span class="headerStyle"> Active Strategies</span>
@@ -58,7 +58,8 @@ import { mapGetters } from 'vuex'
 export default {
   data() {
     return {
-      showAddStrat: false
+      showAddStrat: false,
+      chartTicker: 'BTCUSDT'
     }
   },
     computed: {
@@ -69,6 +70,12 @@ export default {
       'add-strat': require('components/Strats/AddStrat.vue').default,
       'top-three': require('src/components/TopThree.vue').default,
       'chart': require('src/components/Chart.vue').default,
+    },
+    methods: {
+      getChartTicker(value) {
+        this.chartTicker=value
+        this.$refs.chart.createChart(value)
+      }
     }
   }
 </script>

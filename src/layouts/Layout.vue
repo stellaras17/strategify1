@@ -17,15 +17,6 @@
           @click="logOutUser"
           />
 
-        <q-btn
-          v-if="!loggedIn"
-          color="secondary"
-          icon-right="account_circle"
-          label="LOG IN" 
-          class="absolute-right"
-          flat
-          to="/auth"/>
-
       </q-toolbar>
     </q-header>
 

@@ -1,40 +1,49 @@
 <template>
         <div class="row prices-div">
-            <q-card class="my-card cursor-pointer" @click="goToURL('BTC')">
-                <q-card-section class="text-center text-weight-bold">
-                    <q-img
-                        src="~assets/logos/btc.png"
-                        :ratio="1"
-                        width="140px"
-                    />
-                </q-card-section>
-                <q-card-section :class="btcclass" class="text-center text-weight-bold text-size">
-                    {{ btcPrice }}$
-                </q-card-section>
+            <q-card class="my-card cursor-pointer" @click="sendTicker('BTCUSDT')">
+                <q-spinner-pie v-if="btcPrice==0" color="secondary" size="5.5em" class="absolute-center" />
+                <div v-else>
+                    <q-card-section class="text-center text-weight-bold">
+                        <q-img
+                            src="~assets/logos/btc.png"
+                            :ratio="1"
+                            width="140px"
+                        />
+                    </q-card-section>
+                    <q-card-section :class="btcclass" class="text-center text-weight-bold text-size">
+                        {{ btcPrice }}$
+                    </q-card-section>
+                </div>
             </q-card>
-            <q-card class="cursor-pointer my-card" @click="goToURL('ETH')">
-                <q-card-section class="text-center text-weight-bold">
-                    <q-img
-                        src="~assets/logos/eth.png"
-                        :ratio="1"
-                        width="140px"
-                    />
-                </q-card-section>
-                <q-card-section :class="ethclass" class="text-center text-weight-bold text-size" >
-                    {{ ethPrice }}$
-                </q-card-section>
+            <q-card class="cursor-pointer my-card" @click="sendTicker('ETHUSDT')">
+                <q-spinner-pie v-if="ethPrice==0" color="secondary" size="5.5em" class="absolute-center" />
+                <div v-else>
+                    <q-card-section class="text-center text-weight-bold">
+                        <q-img
+                            src="~assets/logos/eth.png"
+                            :ratio="1"
+                            width="140px"
+                        />
+                    </q-card-section>
+                    <q-card-section :class="ethclass" class="text-center text-weight-bold text-size" >
+                        {{ ethPrice }}$
+                    </q-card-section>
+                </div>
             </q-card>
-            <q-card class="cursor-pointer my-card" @click="goToURL('BNB')">
-                <q-card-section class="text-center text-weight-bold">
-                    <q-img
-                        src="~assets/logos/bnb.png"
-                        :ratio="1"
-                        width="140px"
-                    />
-                </q-card-section>
-                <q-card-section :class="bnbclass" class="text-center text-weight-bold text-size">
-                    {{ bnbPrice }}$
-                </q-card-section>
+            <q-card class="cursor-pointer my-card" @click="sendTicker('BNBUSDT')">
+                <q-spinner-pie v-if="bnbPrice==0" color="secondary" size="5.5em" class="absolute-center" />
+                <div v-else>
+                    <q-card-section class="text-center text-weight-bold">
+                        <q-img
+                            src="~assets/logos/bnb.png"
+                            :ratio="1"
+                            width="140px"
+                        />
+                    </q-card-section>
+                    <q-card-section :class="bnbclass" class="text-center text-weight-bold text-size">
+                        {{ bnbPrice }}$
+                    </q-card-section>
+                </div>
             </q-card>
         </div>
     
@@ -111,6 +120,9 @@ export default {
                     openURL('https://www.tradingview.com/symbols/BNBUSDT/')
                     break
             }
+        },
+        sendTicker(value) {
+            this.$emit('recieveTicker', value)
         }
     },
     mounted() {
@@ -132,6 +144,9 @@ export default {
     }
     .text-size {
         font-size: 20px;
+    }
+    .spinnerStyle {
+        justify-content: center;
     }
     
 </style>
