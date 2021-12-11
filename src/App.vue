@@ -8,10 +8,12 @@ import { mapActions } from 'vuex'
 
 export default {
   methods: {
-    ...mapActions('auth', ['handleAuthStateChange'])
+    ...mapActions('auth', ['handleAuthStateChange']),
+    ...mapActions('settings', ['getSettings']),
   },
   mounted() {
-    this.handleAuthStateChange()
+    this.handleAuthStateChange(),
+    this.getSettings()
   }
 }
 </script>

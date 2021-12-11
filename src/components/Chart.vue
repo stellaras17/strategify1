@@ -1,21 +1,27 @@
 <template>
-    <div class="row">
+    <div>
+        <p class="q-ml-sm q-mt-md text-h3"> Daily chart of {{settings.tickerForChart}} </p>
+        <div class="row">
+            <q-space />
+        <div class="chart" id="chart" />
         <q-space />
-      <div class="chart" id="chart" />
-      <q-space />
-    </div>
-      
+        </div>
+    </div>  
 
 </template>
 
 <script>
 import { createChart, CrosshairMode } from 'lightweight-charts'
+import {mapGetters} from 'vuex'
 
 export default {
     data() {
         return {
             
         }
+    },
+    computed: {
+        ...mapGetters('settings', ['settings']),
     },
     methods: {
         createChart(ticker) {
@@ -56,14 +62,16 @@ export default {
                 wickUpColor: 'rgba(255, 144, 0, 1)',
             });
 
-            var candlesticks = new Array
-            var data = new Array
+            
 
-            let burl = "https://api.binance.com/api/v3/klines?symbol="+ticker+"&interval=1d&limit=1000"
+            let burl = "https://api.binance.com/api/v3/klines?symbol="+ticker+"&interval=1d&limit=100"
             let request = new XMLHttpRequest()
             request.open('GET',burl,true)
             request.onload = function() {
+                var candlesticks = new Array
+                var data = new Array
                 let response = request.response
+                
                 response = response.replace('[[', '')
                 response = response.replace(']]', '')
                 let candles = response.split('],[')
@@ -85,6 +93,7 @@ export default {
                     data.push({time:formattedTime,open:parseFloat(element[1]),high:parseFloat(element[2]),low:parseFloat(element[3]),close:parseFloat(element[4])})                    
                 })
             candleSeries.setData(data);
+           
             }
             request.send()
             
@@ -92,7 +101,6 @@ export default {
             let wsBTC = new WebSocket('wss://stream.binance.com:9443/ws/'+ticker.toLowerCase()+'@kline_1d')
             wsBTC.onmessage = (event) => {
                 let data = JSON.parse(event.data)
-                
                 let date = new Date(data.E)
                 let year = date.getFullYear();
                 let month = date.getMonth() +1;
@@ -103,7 +111,8 @@ export default {
         }
     },
     mounted() {
-        this.createChart('BTCUSDT')
+        let value = this.settings.tickerForChart
+        this.createChart(value)
     }
 }
 </script>
@@ -112,7 +121,7 @@ export default {
     .chart {
         margin-left: 0 auto;
         margin-right: 0 auto;
-        margin-top: 20px;
+        margin-top: 5px;
         margin-bottom: 20px;
         }
     .tv-lightweight-charts {

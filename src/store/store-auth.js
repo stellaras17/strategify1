@@ -33,6 +33,7 @@ const actions = {
     },
     logOutUser(){
         firebaseAuth.signOut()
+        location.reload();
     },
     handleAuthStateChange({commit, dispatch}) {
         firebaseAuth.onAuthStateChanged(user => {

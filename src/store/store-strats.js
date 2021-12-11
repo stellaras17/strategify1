@@ -102,6 +102,7 @@ const actions = {
     },
     dbReadData({commit}) {
       let user = firebaseAuth.currentUser.uid
+      console.log(user);
       let userStrats = firebaseDb.ref('strats/' + user)
       
       userStrats.on('child_added', snapshot => {
