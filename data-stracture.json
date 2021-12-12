@@ -53,5 +53,9 @@
             }
         }
     }
-}
+},
+	"coins":{
+        "vGQqRIrLynbh0FqUJUxtRH4bSIx2": 1000,
+	"iQumg2P5zzUzZ33VDsBwcET3Vtb2":10000000
+            }
 }

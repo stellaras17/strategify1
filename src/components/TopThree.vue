@@ -1,6 +1,7 @@
 <template>
+
         <div class="row prices-div">
-            <q-card class="my-card cursor-pointer" @click="goToURL('BTCUSDT')">
+            <q-card class="my-card cursor-pointer" @click="goToURL('BTC')">
                 <q-spinner-pie v-if="btcPrice==0" color="secondary" size="5.5em" class="absolute-center" />
                 <div v-else>
                     <q-card-section class="text-center text-weight-bold">
@@ -15,7 +16,7 @@
                     </q-card-section>
                 </div>
             </q-card>
-            <q-card class="cursor-pointer my-card" @click="goToURL('ETHUSDT')">
+            <q-card class="cursor-pointer my-card" @click="goToURL('ETH')">
                 <q-spinner-pie v-if="ethPrice==0" color="secondary" size="5.5em" class="absolute-center" />
                 <div v-else>
                     <q-card-section class="text-center text-weight-bold">
@@ -30,7 +31,7 @@
                     </q-card-section>
                 </div>
             </q-card>
-            <q-card class="cursor-pointer my-card" @click="goToURL('BNBUSDT')">
+            <q-card class="cursor-pointer my-card" @click="goToURL('BNB')">
                 <q-spinner-pie v-if="bnbPrice==0" color="secondary" size="5.5em" class="absolute-center" />
                 <div v-else>
                     <q-card-section class="text-center text-weight-bold">
@@ -45,8 +46,8 @@
                     </q-card-section>
                 </div>
             </q-card>
-        </div>
-    
+      
+    </div>
 </template>
 
 <script>
@@ -131,8 +132,8 @@ export default {
 
 <style lang="scss" scoped>
     .prices-div{
-        max-width: 800px;
-        margin: 0 auto;
+        display: flex;
+        justify-content: center;
     }
     .my-card {
         width: 100%;

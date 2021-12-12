@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <p class="q-ml-sm q-mt-md text-h3"> Daily chart of {{settings.tickerForChart}} </p>
+    <div v-if="settings.showChart">
+        <p class="text-center q-mt-xl text-h3"> Daily chart of {{settings.tickerForChart}} </p>
         <div class="row">
             <q-space />
         <div class="chart" id="chart" />
@@ -26,7 +26,6 @@ export default {
     methods: {
         createChart(ticker) {
             
-            console.log(ticker);
              var chart = createChart(document.getElementById('chart'), {
                 width: 1200,
                 height: 500,
@@ -64,7 +63,7 @@ export default {
 
             
 
-            let burl = "https://api.binance.com/api/v3/klines?symbol="+ticker+"&interval=1d&limit=100"
+            let burl = "https://api.binance.com/api/v3/klines?symbol="+ticker+"&interval=1d&limit=1000"
             let request = new XMLHttpRequest()
             request.open('GET',burl,true)
             request.onload = function() {
@@ -112,7 +111,9 @@ export default {
     },
     mounted() {
         let value = this.settings.tickerForChart
-        this.createChart(value)
+        if(this.settings.showChart){
+            this.createChart(value)
+        }
     }
 }
 </script>
@@ -129,6 +130,10 @@ export default {
         margin-right: 0 auto;
     }
     table {
+        margin-left: 0 auto;
+        margin-right: 0 auto;
+    }
+    p {
         margin-left: 0 auto;
         margin-right: 0 auto;
     }

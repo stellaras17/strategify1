@@ -2,22 +2,30 @@ import { LocalStorage } from "quasar";
 
 const state = {
     settings: {
+        showChart:true,
         tickerForChart: 'BTCUSDT'
     }
 }
 
 
 const mutations = {
+    getSettings(state,value){
+        Object.assign(state.settings, value);
+    },
     setTickerForChart(state, value){
         state.settings.tickerForChart=value;
     },
-    getSettings(state,value){
-        Object.assign(state.settings, value);
+    setShowChart(state,value){
+        state.settings.showChart=value;
     }
 
 }
 
 const actions = {
+    setShowChart({commit, dispatch},value){
+        commit('setShowChart', value)
+        dispatch('saveSettings')
+    },
     setTickerForChart({commit, dispatch},value){
         commit('setTickerForChart', value)
         dispatch('saveSettings')

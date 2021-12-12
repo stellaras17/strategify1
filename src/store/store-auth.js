@@ -13,11 +13,14 @@ const mutations = {
 }
 
 const actions = {
-    registerUser({}, payload) {
+    registerUser({dispatch}, payload) {
         firebaseAuth.createUserWithEmailAndPassword(payload.email, payload.password)
         .then(response => {
             console.log(response);
         })
+        .then(
+            dispatch('strats/initiateCoinsNewUser', null, { root: true })
+        )
         .catch(error => {
             alert(error.message);
         })
@@ -42,6 +45,7 @@ const actions = {
                 LocalStorage.set('loggedIn', true)
                 this.$router.push('/').catch(err => {})
                 dispatch('strats/dbReadData', null, { root: true })
+                dispatch('strats/initiateCoins', null, { root: true })
             }
             else {
                 commit('changeLoggedIn', false)

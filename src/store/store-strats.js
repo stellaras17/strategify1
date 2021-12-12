@@ -3,79 +3,29 @@ import { uid } from 'quasar'
 import { firebaseDb, firebaseAuth } from 'src/boot/firebase'
 
 const state = {
-    strats: {
-        /* 'ID1': {
-          name:'BTC RSI',
-          active: false,
-          ticker: 'BTCUSDT',
-          amount: 100,
-          timeframe: '5m',
-          buyConditions: {
-            indicator: 'RSI',
-            targetValue: 20,
-            conditionMet: false
-          },
-          sellConditions: {
-            indicator: 'RSI',
-            targetValue: 80,
-            conditionMet: false
-          }
-        },
-        'ID2': {
-          name:'ETH RSI',
-          active: false,
-          ticker: 'ETHUSDT',
-          amount: 100,
-          timeframe: '5m',
-          buyConditions: {
-            indicator: 'RSI',
-            targetValue: 20,
-            conditionMet: false
-          },
-          sellConditions: {
-            indicator: 'RSI',
-            targetValue: 80,
-            conditionMet: false
-          }
-        },
-        'ID3': {
-          name:'ZIL RSI',
-          active: false,
-          ticker: 'ZILUSDT',
-          amount: 100,
-          timeframe: '5m',
-          buyConditions: {
-            indicator: 'RSI',
-            targetValue: 20,
-            conditionMet: false
-          },
-          sellConditions: {
-            indicator: 'SMA',
-            targetValue: 60,
-            conditionMet: false
-          }
-        }, */
-    
-    }
-    
+    strats: {},
+    coins: 0,
 }
 
 
 const mutations = {
     updateStrat(state, payload){
-        Object.assign(state.strats[payload.id], payload.updates)
+      Object.assign(state.strats[payload.id], payload.updates)
     },
     updateBuyCons(state, payload){
-        Object.assign(state.strats[payload.id].buyConditions, payload.updates)       
+      Object.assign(state.strats[payload.id].buyConditions, payload.updates)       
     },
     updateSellCons(state, payload){
-        Object.assign(state.strats[payload.id].sellConditions, payload.updates)
+      Object.assign(state.strats[payload.id].sellConditions, payload.updates)
     },
     deleteStrat(state, id){
       Vue.delete(state.strats, id)
     },
     addStrat(state, payload) {
       Vue.set(state.strats, payload.id, payload.strat)
+    },
+    initiateCoins(state, value){
+      state.coins=value;
     }
 }
 
@@ -102,7 +52,6 @@ const actions = {
     },
     dbReadData({commit}) {
       let user = firebaseAuth.currentUser.uid
-      console.log(user);
       let userStrats = firebaseDb.ref('strats/' + user)
       
       userStrats.on('child_added', snapshot => {
@@ -152,6 +101,30 @@ const actions = {
       let stratRef = firebaseDb.ref('strats/'+ user + '/' + stratId)
       stratRef.remove()
     },
+    initiateCoins({commit}) {
+      let user = firebaseAuth.currentUser.uid
+      let coinsRef = firebaseDb.ref('coins/'+ user )
+      coinsRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        commit('initiateCoins', data)
+      });
+    },
+    initiateCoinsNewUser({dispatch}) {
+      let user = firebaseAuth.currentUser
+      try {
+        if(user==null){
+          setTimeout(dispatch,1000,'initiateCoinsNewUser')
+
+        } else {
+          let userID = firebaseAuth.currentUser.uid
+          let coinsRef = firebaseDb.ref('coins/'+ userID )
+          coinsRef.set(1000)
+        }
+      }
+      catch(err) {
+        alert(err.message)
+      }      
+    }
 }
 
 const getters = {
@@ -174,6 +147,9 @@ const getters = {
         }
       })
       return strats
+    },
+    coins: (state) => {
+      return state.coins
     }
 } 
 
