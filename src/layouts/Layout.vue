@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpR fFf">
+  <q-layout view="hHh lpR fff">
     <q-header elevated>
       <q-toolbar>
 
@@ -7,18 +7,25 @@
           Strategify
         </q-toolbar-title>
 
+        <div class="row absolute-right">
         <q-btn
           v-if="loggedIn"
           color="secondary"
           icon-right="account_circle"
           label="LOG OUT" 
-          class="absolute-right"
+          
           flat
           @click="logOutUser"
           />
 
+          
+
+        </div>
+      
       </q-toolbar>
+      
     </q-header>
+    
 
     <q-drawer
       v-if="loggedIn"
@@ -71,6 +78,9 @@
       </q-list>
     </q-drawer>
 
+    
+    
+
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -84,6 +94,7 @@ export default {
   data () {
     return {
       leftDrawerOpen: false,
+
       
     }
   },

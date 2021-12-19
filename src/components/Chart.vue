@@ -63,7 +63,7 @@ export default {
 
             
 
-            let burl = "https://api.binance.com/api/v3/klines?symbol="+ticker+"&interval=1d&limit=1000"
+            let burl = "https://api.binance.com/api/v3/klines?symbol="+ticker+"&interval=1d&limit=10"
             let request = new XMLHttpRequest()
             request.open('GET',burl,true)
             request.onload = function() {

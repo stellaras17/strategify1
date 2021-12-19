@@ -1,11 +1,12 @@
 <template>
   <q-page padding class="bg-info">
+    <q-btn dense class="float-right" flat round icon="menu" @click="rightDrawerOpen=!rightDrawerOpen" />
 
       <top-three />
 
       <chart/>
 
-      <q-separator class="q-mb-sm" color="primary"/>
+      <q-separator class="q-mb-sm q-mt-sm" color="primary"/>
 
       <p class="text-h6"> Budget: {{coins}}$ </p>
       <div class="row q-mt-xl q-mb-sm text-center">
@@ -57,6 +58,12 @@
     
       </div>
 
+      <q-drawer show-if-above v-model="rightDrawerOpen" side="right" bordered>
+      
+      <news/>
+
+    </q-drawer>
+
     
 
     <q-dialog v-model="showAddStrat">
@@ -73,6 +80,7 @@ export default {
   data() {
     return {
       showAddStrat: false,
+      rightDrawerOpen: false,
       chartTicker: 'BTCUSDT'
     }
   },
@@ -84,6 +92,8 @@ export default {
       'add-strat': require('components/Strats/AddStrat.vue').default,
       'top-three': require('src/components/TopThree.vue').default,
       'chart': require('src/components/Chart.vue').default,
+      'news': require('components/News.vue').default
+  
     }
   }
 </script>
