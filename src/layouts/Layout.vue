@@ -3,6 +3,8 @@
     <q-header elevated>
       <q-toolbar>
 
+        <p class="q-mt-sm">{{userEmail}}</p>
+
         <q-toolbar-title class="text-secondary absolute-center">
           Strategify
         </q-toolbar-title>
@@ -60,6 +62,23 @@
         </q-item>
 
         <q-item
+          to="/orders"
+          clickable
+          exact
+          active-class="text-secondary"
+        >
+          <q-item-section
+            avatar
+          >
+            <q-icon name = "book" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>Orders</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item
           to="/settings"
           clickable
           exact
@@ -88,21 +107,28 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { LocalStorage } from 'quasar'
+import { mapState, mapActions, mapGetters } from 'vuex'
 
 export default {
   data () {
     return {
       leftDrawerOpen: false,
-
-      
+      userEmail: ''
     }
   },
   computed: {
     ...mapState('auth', ['loggedIn'])
   },
   methods: {
-    ...mapActions('auth', ['logOutUser'])
+    ...mapActions('auth', ['logOutUser']),
+    setUserEmail() {
+      let email = LocalStorage.getItem('userEmail')
+      this.userEmail = email
+    }
+  },
+  mounted() {
+    this.setUserEmail()
   }
 }
 </script>

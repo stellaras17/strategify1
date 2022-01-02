@@ -9,6 +9,10 @@ const state = {
 const mutations = {
     changeLoggedIn(state, value){
         state.loggedIn = value
+    },
+    setUserEmail(state){
+        let email = LocalStorage.getItem('userEmail')
+        state.userEmail = email
     }
 }
 
@@ -25,11 +29,14 @@ const actions = {
             alert(error.message);
         })
     },
-    loginUser({}, payload) {
+    loginUser({commit}, payload) {
         firebaseAuth.signInWithEmailAndPassword(payload.email, payload.password)
         .then(response => {
             console.log(response);
         })
+        .then(
+            LocalStorage.set('userEmail', payload.email)
+        )
         .catch(error => {
             alert(error.message);
         })
@@ -57,7 +64,11 @@ const actions = {
 }
 
 const getters = {
-
+    getUser: state => {
+        let user = state.userEmail
+        console.log(user);
+        return user;
+    }
 } 
 
 export default {

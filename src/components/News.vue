@@ -31,13 +31,12 @@ export default {
     methods: {
         fetchNews(){
             var news = new Array
-            fetch('https://newsapi.org/v2/everything?q=Bitcoin&from=2021-12-19&sortBy=publishedAt&apiKey=80489bc6cf9d4a489e5cc3aa0daf8f05')
+            fetch('https://newsapi.org/v2/everything?q=bitcoin news OR cryptocurrency news&from=2021-12-19&sortBy=publishedAt&apiKey=80489bc6cf9d4a489e5cc3aa0daf8f05')
             .then(a=>a.json())
             .then(response => response.articles.forEach(element => {
                 news.push(element)
             }))
             this.news=news
-            console.log(this.news);
         },
         goToUrl(url) {
             openURL(url)

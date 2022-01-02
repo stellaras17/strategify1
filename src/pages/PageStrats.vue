@@ -58,7 +58,7 @@
     
       </div>
 
-      <q-drawer show-if-above v-model="rightDrawerOpen" side="right" bordered>
+      <q-drawer v-model="rightDrawerOpen" side="right" bordered>
       
       <news/>
 

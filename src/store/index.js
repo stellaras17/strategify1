@@ -4,6 +4,7 @@ import Vuex from 'vuex'
 import strats from './store-strats'
 import settings from './store-settings'
 import auth from './store-auth'
+import orders from './store-orders'
 
 Vue.use(Vuex)
 
@@ -21,7 +22,8 @@ export default function (/* { ssrContext } */) {
     modules: {
       strats,
       settings,
-      auth
+      auth,
+      orders
     },
 
     // enable strict mode (adds overhead!)
