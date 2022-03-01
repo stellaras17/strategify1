@@ -3,7 +3,7 @@
     <q-header elevated>
       <q-toolbar>
 
-        <p class="q-mt-sm">{{userEmail}}</p>
+        <p class="q-mt-sm">{{userem}}</p>
 
         <q-toolbar-title class="text-secondary absolute-center">
           Strategify
@@ -118,17 +118,19 @@ export default {
     }
   },
   computed: {
-    ...mapState('auth', ['loggedIn'])
+    ...mapState('auth', ['loggedIn', 'userem'])
   },
   methods: {
     ...mapActions('auth', ['logOutUser']),
-    setUserEmail() {
+    /* setUserEmail() {
       let email = LocalStorage.getItem('userEmail')
       this.userEmail = email
-    }
+    } */
   },
   mounted() {
-    this.setUserEmail()
+    /* if(this.loggedIn){
+      this.setUserEmail()
+    } */
   }
 }
 </script>

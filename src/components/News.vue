@@ -30,13 +30,21 @@ export default {
     },
     methods: {
         fetchNews(){
+            const date = new Date();
+            date.setDate(date.getDate() - 10)
+            let d = date.getFullYear() + '-' + (parseInt(date.getMonth())+1).toString() + '-' + date.getDate()
+            console.log(d);
             var news = new Array
-            fetch('https://newsapi.org/v2/everything?q=bitcoin news OR cryptocurrency news&from=2021-12-19&sortBy=publishedAt&apiKey=80489bc6cf9d4a489e5cc3aa0daf8f05')
+            fetch('https://newsapi.org/v2/everything?q=bitcoin news OR cryptocurrency news&from='+d+'&sortBy=publishedAt&apiKey=80489bc6cf9d4a489e5cc3aa0daf8f05')
             .then(a=>a.json())
             .then(response => response.articles.forEach(element => {
                 news.push(element)
             }))
             this.news=news
+            /* var newsFetch = new XMLHttpRequest();
+            newsFetch.open("GET", "https://newsapi.org/v2/everything?q=bitcoin news OR cryptocurrency news&from=2022-01-10&sortBy=publishedAt&apiKey=80489bc6cf9d4a489e5cc3aa0daf8f05");
+            newsFetch.send();
+            console.log(newsFetch); */
         },
         goToUrl(url) {
             openURL(url)

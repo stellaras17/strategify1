@@ -114,7 +114,6 @@ const actions = {
       try {
         if(user==null){
           setTimeout(dispatch,1000,'initiateCoinsNewUser')
-
         } else {
           let userID = firebaseAuth.currentUser.uid
           let coinsRef = firebaseDb.ref('coins/'+ userID )
@@ -123,7 +122,7 @@ const actions = {
       }
       catch(err) {
         alert(err.message)
-      }      
+      }   
     }
 }
 

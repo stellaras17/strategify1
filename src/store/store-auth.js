@@ -2,7 +2,8 @@ import { firebaseAuth } from 'boot/firebase.js'
 import { LocalStorage } from 'quasar'
 
 const state = {
-    loggedIn: false
+    loggedIn: false,
+    userem: ''
 }
 
 
@@ -10,9 +11,9 @@ const mutations = {
     changeLoggedIn(state, value){
         state.loggedIn = value
     },
-    setUserEmail(state){
-        let email = LocalStorage.getItem('userEmail')
-        state.userEmail = email
+    setUserEmail(state, value){
+        //let email = LocalStorage.getItem('userEmail')
+        state.userem = value
     }
 }
 
@@ -35,7 +36,8 @@ const actions = {
             console.log(response);
         })
         .then(
-            LocalStorage.set('userEmail', payload.email)
+           // LocalStorage.set('userEmail', payload.email)
+           commit('setUserEmail', payload.email)
         )
         .catch(error => {
             alert(error.message);
