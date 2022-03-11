@@ -1,5 +1,6 @@
 import pyrebase, json
 import websocket, requests
+import talib
 from threading import Thread
 
 websockets = {
@@ -160,6 +161,9 @@ closes = {
 
 allStrats = stratsBTC = stratsETH = stratsBNB = stratsZIL = {}
 
+timeperiodSmall = 12
+timeperiod = 26
+
 def rotateList(l, n):
     return l[n:] + l[:n]
 
@@ -200,6 +204,12 @@ def on_close(ws):
 
 def on_message(ws, message):
     global closes
+    global SMAs
+    global EMAs
+    global MACDs
+    global RSIs
+    global timeperiod
+    global timeperiodSmall
 
     json_message = json.loads(message)
     candle = json_message['k']
@@ -214,132 +224,213 @@ def on_message(ws, message):
         print("candlestick closed at {}".format(close))
         if 'btc' in ws.url:
             if '1m' in ws.url:
-                if len(closes['BTC1m']) < 14:
+                if len(closes['BTC1m']) < timeperiod:
                     closes['BTC1m'].append(close)
                 else:
                     closes['BTC1m'] = rotateList(closes['BTC1m'],1)
                     closes['BTC1m'][-1] = close
+                    SMAs['BTC1m'] = sum(closes['BTC1m']) / float(len(closes['BTC1m']))
+                    EMAs["BTC1m"] = talib.EMA(closes['BTC1m'], timeperiod = timeperiod)
+                    MACDs['BTC1m'] = talib.EMA(closes['BTC1m'], timeperiod = timeperiodSmall) - talib.EMA(closes['BTC1m'], timeperiod = timeperiod)
+                    RSIs['BTC1m'] = talib.RSI(closes['BTC1m'], timeperiod=timeperiod)
             elif '5m' in ws.url:
-                if len(closes['BTC5m']) < 14:
+                if len(closes['BTC5m']) < timeperiod:
                     closes['BTC5m'].append(close)
                 else:
                     closes['BTC5m'] = rotateList(closes['BTC5m'],1)
                     closes['BTC5m'][-1] = close
+                    SMAs['BTC5m'] = sum(closes['BTC5m']) / float(len(closes['BTC5m']))
+                    EMAs["BTC5m"] = talib.EMA(closes['BTC5m'], timeperiod = timeperiod)
+                    MACDs['BTC5m'] = talib.EMA(closes['BTC5m'], timeperiod = timeperiodSmall) - talib.EMA(closes['BTC5m'], timeperiod = timeperiod)
+                    RSIs['BTC5m'] = talib.RSI(closes['BTC5m'], timeperiod=timeperiod)
             elif '1h' in ws.url:
-                if len(closes['BTC1h']) < 14:
+                if len(closes['BTC1h']) < timeperiod:
                     closes['BTC1h'].append(close)
                 else:
                     closes['BTC1h'] = rotateList(closes['BTC1h'],1)
                     closes['BTC1h'][-1] = close
+                    SMAs['BTC1h'] = sum(closes['BTC1h']) / float(len(closes['BTC1h']))
+                    EMAs["BTC1h"] = talib.EMA(closes['BTC1h'], timeperiod = timeperiod)
+                    MACDs['BTC1h'] = talib.EMA(closes['BTC1h'], timeperiod = timeperiodSmall) - talib.EMA(closes['BTC1h'], timeperiod = timeperiod)
+                    RSIs['BTC1h'] = talib.RSI(closes['BTC1h'], timeperiod=timeperiod)
             elif '4h' in ws.url:
-                if len(closes['BTC4h']) < 14:
+                if len(closes['BTC4h']) < timeperiod:
                     closes['BTC4h'].append(close)
                 else:
                     closes['BTC4h'] = rotateList(closes['BTC4h'],1)
                     closes['BTC4h'][-1] = close
+                    SMAs['BTC4h'] = sum(closes['BTC4h']) / float(len(closes['BTC4h']))
+                    EMAs["BTC4h"] = talib.EMA(closes['BTC4h'], timeperiod = timeperiod)
+                    MACDs['BTC4h'] = talib.EMA(closes['BTC4h'], timeperiod = timeperiodSmall) - talib.EMA(closes['BTC4h'], timeperiod = timeperiod)
+                    RSIs['BTC4h'] = talib.RSI(closes['BTC4h'], timeperiod=timeperiod)
             elif '1d' in ws.url:
-                if len(closes['BTC1d']) < 14:
+                if len(closes['BTC1d']) < timeperiod:
                     closes['BTC1d'].append(close)
                 else:
                     closes['BTC1d'] = rotateList(closes['BTC1d'],1)
                     closes['BTC1d'][-1] = close
+                    SMAs['BTC1d'] = sum(closes['BTC1d']) / float(len(closes['BTC1d']))
+                    EMAs["BTC1d"] = talib.EMA(closes['BTC1d'], timeperiod = timeperiod)
+                    MACDs['BTC1d'] = talib.EMA(closes['BTC1d'], timeperiod = timeperiodSmall) - talib.EMA(closes['BTC1d'], timeperiod = timeperiod)
+                    RSIs['BTC1d'] = talib.RSI(closes['BTC1d'], timeperiod=timeperiod)
 
         elif 'eth' in ws.url:
             if '1m' in ws.url:
-                if len(closes['ETH1m']) < 14:
+                if len(closes['ETH1m']) < timeperiod:
                     closes['ETH1m'].append(close)
                 else:
                     closes['ETH1m'] = rotateList(closes['ETH1m'],1)
                     closes['ETH1m'][-1] = close
+                    SMAs['ETH1m'] = sum(closes['ETH1m']) / float(len(closes['ETH1m']))
+                    EMAs["ETH1m"] = talib.EMA(closes['ETH1m'], timeperiod = timeperiod)
+                    MACDs['ETH1m'] = talib.EMA(closes['ETH1m'], timeperiod = timeperiodSmall) - talib.EMA(closes['ETH1m'], timeperiod = timeperiod)
+                    RSIs['ETH1m'] = talib.RSI(closes['ETH1m'], timeperiod=timeperiod)
             elif '5m' in ws.url:
-                if len(closes['ETH5m']) < 14:
+                if len(closes['ETH5m']) < timeperiod:
                     closes['ETH5m'].append(close)
                 else:
                     closes['ETH5m'] = rotateList(closes['ETH5m'],1)
-                    closes['ETH5m'][-1] = close
+                    closes['ETHETH5m5m'][-1] = close
+                    SMAs['ETH5m'] = sum(closes['ETH5m']) / float(len(closes['ETH5m']))
+                    EMAs["ETH5m"] = talib.EMA(closes['ETH5m'], timeperiod = timeperiod)
+                    MACDs['ETH5m'] = talib.EMA(closes['ETH5m'], timeperiod = timeperiodSmall) - talib.EMA(closes['ETH5m'], timeperiod = timeperiod)
+                    RSIs['ETH5m'] = talib.RSI(closes['ETH5m'], timeperiod=timeperiod)
             elif '1h' in ws.url:
-                if len(closes['ETH1h']) < 14:
+                if len(closes['ETH1h']) < timeperiod:
                     closes['ETH1h'].append(close)
                 else:
                     closes['ETH1h'] = rotateList(closes['ETH1h'],1)
                     closes['ETH1h'][-1] = close
+                    SMAs['ETH1h'] = sum(closes['ETH1h']) / float(len(closes['ETH1h']))
+                    EMAs["ETH1h"] = talib.EMA(closes['ETH1h'], timeperiod = timeperiod)
+                    MACDs['ETH1h'] = talib.EMA(closes['ETH1h'], timeperiod = timeperiodSmall) - talib.EMA(closes['ETH1h'], timeperiod = timeperiod)
+                    RSIs['ETH1h'] = talib.RSI(closes['ETH1h'], timeperiod=timeperiod)
             elif '4h' in ws.url:
-                if len(closes['ETH4h']) < 14:
+                if len(closes['ETH4h']) < timeperiod:
                     closes['ETH4h'].append(close)
                 else:
                     closes['ETH4h'] = rotateList(closes['ETH4h'],1)
                     closes['ETH4h'][-1] = close
+                    SMAs['ETH4h'] = sum(closes['ETH4h']) / float(len(closes['ETH4h']))
+                    EMAs["ETH4h"] = talib.EMA(closes['ETH4h'], timeperiod = timeperiod)
+                    MACDs['ETH4h'] = talib.EMA(closes['ETH4h'], timeperiod = timeperiodSmall) - talib.EMA(closes['ETH4h'], timeperiod = timeperiod)
+                    RSIs['ETH4h'] = talib.RSI(closes['ETH4h'], timeperiod=timeperiod)
             elif '1d' in ws.url:
-                if len(closes['ETH1d']) < 14:
+                if len(closes['ETH1d']) < timeperiod:
                     closes['ETH1d'].append(close)
                 else:
                     closes['ETH1d'] = rotateList(closes['ETH1d'],1)
                     closes['ETH1d'][-1] = close
+                    SMAs['ETH1d'] = sum(closes['ETH1d']) / float(len(closes['ETH1d']))
+                    EMAs["ETH1d"] = talib.EMA(closes['ETH1d'], timeperiod = timeperiod)
+                    MACDs['ETH1d'] = talib.EMA(closes['ETH1d'], timeperiod = timeperiodSmall) - talib.EMA(closes['ETH1d'], timeperiod = timeperiod)
+                    RSIs['ETH1d'] = talib.RSI(closes['ETH1d'], timeperiod=timeperiod)
 
         elif 'bnb' in ws.url:
             if '1m' in ws.url:
-                if len(closes['BNB1m']) < 14:
+                if len(closes['BNB1m']) < timeperiod:
                     closes['BNB1m'].append(close)
                 else:
                     closes['BNB1m'] = rotateList(closes['BNB1m'],1)
                     closes['BNB1m'][-1] = close
+                    SMAs['BNB1m'] = sum(closes['BNB1m']) / float(len(closes['BNB1m']))
+                    EMAs["BNB1m"] = talib.EMA(closes['BNB1m'], timeperiod = timeperiod)
+                    MACDs['BNB1m'] = talib.EMA(closes['BNB1m'], timeperiod = timeperiodSmall) - talib.EMA(closes['BNB1m'], timeperiod = timeperiod)
+                    RSIs['BNB1m'] = talib.RSI(closes['BNB1m'], timeperiod=timeperiod)
             elif '5m' in ws.url:
-                if len(closes['BNB5m']) < 14:
+                if len(closes['BNB5m']) < timeperiod:
                     closes['BNB5m'].append(close)
                 else:
                     closes['BNB5m'] = rotateList(closes['BNB5m'],1)
                     closes['BNB5m'][-1] = close
+                    SMAs['BNB5m'] = sum(closes['BNB5m']) / float(len(closes['BNB5m']))
+                    EMAs["BNB5m"] = talib.EMA(closes['BNB5m'], timeperiod = timeperiod)
+                    MACDs['BNB5m'] = talib.EMA(closes['BNB5m'], timeperiod = timeperiodSmall) - talib.EMA(closes['BNB5m'], timeperiod = timeperiod)
+                    RSIs['BNB5m'] = talib.RSI(closes['BNB5m'], timeperiod=timeperiod)
             elif '1h' in ws.url:
-                if len(closes['BNB1h']) < 14:
+                if len(closes['BNB1h']) < timeperiod:
                     closes['BNB1h'].append(close)
                 else:
                     closes['BNB1h'] = rotateList(closes['BNB1h'],1)
                     closes['BNB1h'][-1] = close
+                    SMAs['BNB1h'] = sum(closes['BNB1h']) / float(len(closes['BNB1h']))
+                    EMAs["BNB1h"] = talib.EMA(closes['BNB1h'], timeperiod = timeperiod)
+                    MACDs['BNB1h'] = talib.EMA(closes['BNB1h'], timeperiod = timeperiodSmall) - talib.EMA(closes['BNB1h'], timeperiod = timeperiod)
+                    RSIs['BNB1h'] = talib.RSI(closes['BNB1h'], timeperiod=timeperiod)
             elif '4h' in ws.url:
-                if len(closes['BNB4h']) < 14:
+                if len(closes['BNB4h']) < timeperiod:
                     closes['BNB4h'].append(close)
                 else:
                     closes['BNB4h'] = rotateList(closes['BNB4h'],1)
                     closes['BNB4h'][-1] = close
+                    SMAs['BNB4h'] = sum(closes['BNB4h']) / float(len(closes['BNB4h']))
+                    EMAs["BNB4h"] = talib.EMA(closes['BNB4h'], timeperiod = timeperiod)
+                    MACDs['BNB4h'] = talib.EMA(closes['BNB4h'], timeperiod = timeperiodSmall) - talib.EMA(closes['BNB4h'], timeperiod = timeperiod)
+                    RSIs['BNB4h'] = talib.RSI(closes['BNB4h'], timeperiod=timeperiod)
             elif '1d' in ws.url:
-                if len(closes['BNB1d']) < 14:
+                if len(closes['BNB1d']) < timeperiod:
                     closes['BNB1d'].append(close)
                 else:
                     closes['BNB1d'] = rotateList(closes['BNB1d'],1)
                     closes['BNB1d'][-1] = close
+                    SMAs['BNB1d'] = sum(closes['BNB1d']) / float(len(closes['BNB1d']))
+                    EMAs["BNB1d"] = talib.EMA(closes['BNB1d'], timeperiod = timeperiod)
+                    MACDs['BNB1d'] = talib.EMA(closes['BNB1d'], timeperiod = timeperiodSmall) - talib.EMA(closes['BNB1d'], timeperiod = timeperiod)
+                    RSIs['BNB1d'] = talib.RSI(closes['BNB1d'], timeperiod=timeperiod)
 
         elif 'zil' in ws.url:
             if '1m' in ws.url:
-                if len(closes['ZIL1m']) < 14:
+                if len(closes['ZIL1m']) < timeperiod:
                     closes['ZIL1m'].append(close)
                 else:
                     closes['ZIL1m'] = rotateList(closes['ZIL1m'],1)
                     closes['ZIL1m'][-1] = close
+                    SMAs['ZIL1m'] = sum(closes['ZIL1m']) / float(len(closes['ZIL1m']))
+                    EMAs["ZIL1m"] = talib.EMA(closes['ZIL1m'], timeperiod = timeperiod)
+                    MACDs['ZIL1m'] = talib.EMA(closes['ZIL1m'], timeperiod = timeperiodSmall) - talib.EMA(closes['ZIL1m'], timeperiod = timeperiod)
+                    RSIs['ZIL1m'] = talib.RSI(closes['ZIL1m'], timeperiod=timeperiod)
             elif '5m' in ws.url:
-                if len(closes['ZIL5m']) < 14:
+                if len(closes['ZIL5m']) < timeperiod:
                     closes['ZIL5m'].append(close)
                 else:
                     closes['ZIL5m'] = rotateList(closes['ZIL5m'],1)
                     closes['ZIL5m'][-1] = close
+                    SMAs['ZIL5m'] = sum(closes['ZIL5m']) / float(len(closes['ZIL5m']))
+                    EMAs["ZIL5m"] = talib.EMA(closes['ZIL5m'], timeperiod = timeperiod)
+                    MACDs['ZIL5m'] = talib.EMA(closes['ZIL5m'], timeperiod = timeperiodSmall) - talib.EMA(closes['ZIL5m'], timeperiod = timeperiod)
+                    RSIs['ZIL5m'] = talib.RSI(closes['ZIL5m'], timeperiod=timeperiod)
             elif '1h' in ws.url:
-                if len(closes['ZIL1h']) < 14:
+                if len(closes['ZIL1h']) < timeperiod:
                     closes['ZIL1h'].append(close)
                 else:
                     closes['ZIL1h'] = rotateList(closes['ZIL1h'],1)
                     closes['ZIL1h'][-1] = close
+                    SMAs['ZIL1h'] = sum(closes['ZIL1h']) / float(len(closes['ZIL1h']))
+                    EMAs["ZIL1h"] = talib.EMA(closes['ZIL1h'], timeperiod = timeperiod)
+                    MACDs['ZIL1h'] = talib.EMA(closes['ZIL1h'], timeperiod = timeperiodSmall) - talib.EMA(closes['ZIL1h'], timeperiod = timeperiod)
+                    RSIs['ZIL1h'] = talib.RSI(closes['ZIL1h'], timeperiod=timeperiod)
             elif '4h' in ws.url:
-                if len(closes['ZIL4h']) < 14:
+                if len(closes['ZIL4h']) < timeperiod:
                     closes['ZIL4h'].append(close)
                 else:
                     closes['ZIL4h'] = rotateList(closes['ZIL4h'],1)
                     closes['ZIL4h'][-1] = close
+                    SMAs['ZIL4h'] = sum(closes['ZIL4h']) / float(len(closes['ZIL4h']))
+                    EMAs["ZIL4h"] = talib.EMA(closes['ZIL4h'], timeperiod = timeperiod)
+                    MACDs['ZIL4h'] = talib.EMA(closes['ZIL4h'], timeperiod = timeperiodSmall) - talib.EMA(closes['ZIL4h'], timeperiod = timeperiod)
+                    RSIs['ZIL4h'] = talib.RSI(closes['ZIL4h'], timeperiod=timeperiod)
             elif '1d' in ws.url:
-                if len(closes['ZIL1d']) < 14:
+                if len(closes['ZIL1d']) < timeperiod:
                     closes['ZIL1d'].append(close)
                 else:
                     closes['ZIL1d'] = rotateList(closes['ZIL1d'],1)
                     closes['ZIL1d'][-1] = close
+                    SMAs['ZIL1d'] = sum(closes['ZIL1d']) / float(len(closes['ZIL1d']))
+                    EMAs["ZIL1d"] = talib.EMA(closes['ZIL1d'], timeperiod = timeperiod)
+                    MACDs['ZIL1d'] = talib.EMA(closes['ZIL1d'], timeperiod = timeperiodSmall) - talib.EMA(closes['ZIL1d'], timeperiod = timeperiod)
+                    RSIs['ZIL1d'] = talib.RSI(closes['ZIL1d'], timeperiod=timeperiod)
         print(closes)
+        
 initiateStrats()
 
 for socket in websockets:
