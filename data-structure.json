@@ -1,0 +1,142 @@
+{
+  "coins" : {
+    "2tOzWUvatndZMnSw5GKxujt8Eu83" : 1000,
+    "MBlqD0pLwrMV4cyFn3neyJ5Hr843" : 1000,
+    "iQumg2P5zzUzZ33VDsBwcET3Vtb2" : 10000000,
+    "vGQqRIrLynbh0FqUJUxtRH4bSIx2" : 100000
+  },
+  "crypto" : {
+    "2tOzWUvatndZMnSw5GKxujt8Eu83" : {
+		"BTC" : 0,
+		"ETH" : 0,
+		"BNB" : 0,
+		"ZIL" : 0
+	},
+    "MBlqD0pLwrMV4cyFn3neyJ5Hr843" : {
+		"BTC" : 0,
+		"ETH" : 0,
+		"BNB" : 0,
+		"ZIL" : 0
+	},
+    "iQumg2P5zzUzZ33VDsBwcET3Vtb2" : {
+		"BTC" : 0,
+		"ETH" : 0,
+		"BNB" : 0,
+		"ZIL" : 0
+	},
+    "vGQqRIrLynbh0FqUJUxtRH4bSIx2" : {
+		"BTC" : 0,
+		"ETH" : 0,
+		"BNB" : 0,
+		"ZIL" : 0
+	}
+  },
+  "strats" : {
+    "iQumg2P5zzUzZ33VDsBwcET3Vtb2" : {
+      "53aa3633-efca-4d28-8682-798bfcd1948d" : {
+        "active" : false,
+        "amount" : "1000",
+        "buyConditions" : {
+          "conditionMet" : false,
+          "indicator" : "EMA",
+          "targetValue" : "123"
+        },
+        "name" : "test",
+        "sellConditions" : {
+          "conditionMet" : false,
+          "indicator" : "EMA",
+          "targetValue" : "123"
+        },
+        "ticker" : "BNBUSDT",
+        "timeframe" : "1d"
+      }
+    },
+    "vGQqRIrLynbh0FqUJUxtRH4bSIx2" : {
+      "1e9118b7-e2ea-4aec-82a6-a6bcda973ed0" : {
+        "active" : true,
+        "amount" : "190",
+        "buyConditions" : {
+          "conditionMet" : false,
+          "indicator" : "SMA",
+          "targetValue" : "40"
+        },
+        "name" : "test2",
+        "sellConditions" : {
+          "conditionMet" : false,
+          "indicator" : "RSI",
+          "targetValue" : "80"
+        },
+        "ticker" : "BNBUSDT",
+        "timeframe" : "1h"
+      },
+      "24803170-6a5c-46dc-9871-5f39d145a64f" : {
+        "active" : true,
+        "amount" : "1000",
+        "buyConditions" : {
+          "conditionMet" : false,
+          "indicator" : "RSI",
+          "targetValue" : "20"
+        },
+        "name" : "test",
+        "sellConditions" : {
+          "conditionMet" : false,
+          "indicator" : "RSI",
+          "targetValue" : "80"
+        },
+        "ticker" : "BTCUSDT",
+        "timeframe" : "1d"
+      },
+      "ID1" : {
+        "active" : true,
+        "amount" : 10,
+        "buyConditions" : {
+          "conditionMet" : false,
+          "indicator" : "RSI",
+          "targetValue" : 20
+        },
+        "name" : "BTC RSI",
+        "sellConditions" : {
+          "conditionMet" : false,
+          "indicator" : "RSI",
+          "targetValue" : 80
+        },
+        "ticker" : "BTCUSDT",
+        "timeframe" : "5m"
+      },
+      "ID2" : {
+        "active" : true,
+        "amount" : 100,
+        "buyConditions" : {
+          "conditionMet" : false,
+          "indicator" : "RSI",
+          "targetValue" : 20
+        },
+        "name" : "ETH RSI",
+        "sellConditions" : {
+          "conditionMet" : false,
+          "indicator" : "RSI",
+          "targetValue" : 80
+        },
+        "ticker" : "ETHUSDT",
+        "timeframe" : "5m"
+      },
+      "ID3" : {
+        "active" : true,
+        "amount" : 100,
+        "buyConditions" : {
+          "conditionMet" : false,
+          "indicator" : "RSI",
+          "targetValue" : 20
+        },
+        "name" : "ZIL RSI",
+        "sellConditions" : {
+          "conditionMet" : false,
+          "indicator" : "SMA",
+          "targetValue" : 60
+        },
+        "ticker" : "ZILUSDT",
+        "timeframe" : "5m"
+      }
+    }
+  }
+}

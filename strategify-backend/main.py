@@ -159,21 +159,26 @@ closes = {
     'ZIL1d' : [],
 }
 
-allStrats = stratsBTC = stratsETH = stratsBNB = stratsZIL = {}
-
+allStrats = {}
+stratsBTC = {}
+stratsETH = {}
+stratsBNB = {}
+stratsZIL = {}
 timeperiodSmall = 12
 timeperiod = 26
+strats = None
+firebase = None
 
 def rotateList(l, n):
     return l[n:] + l[:n]
 
 def initiateStrats():
+    global allStrats, strats, firebase
     f = open('api.json')
     api = json.load(f)
     fireBaseConfig = api
     firebase = pyrebase.initialize_app(fireBaseConfig)
     db = firebase.database()
-    global allStrats
     strats = db.child("strats").get()
 
     for user in strats.each():
@@ -184,16 +189,51 @@ def initiateStrats():
     splitStrats()
 
 def splitStrats():
-    global allStrats
+    global allStrats, stratsBTC, stratsETH, stratsBNB, stratsZIL
     for strat in allStrats:
         if allStrats[strat]['ticker'] == 'BTCUSDT':
             stratsBTC[strat] = allStrats[strat]
         elif allStrats[strat]['ticker'] == 'ETHUSDT':
-            stratsETH[strat] = allStrats[strat]
+            stratsETH[strat] = allStrats[strat]            
         elif allStrats[strat]['ticker'] == 'BNBUSDT':
             stratsBNB[strat] = allStrats[strat]
         elif allStrats[strat]['ticker'] == 'ZILUSDT':
             stratsZIL[strat] = allStrats[strat]
+    return
+
+def buyOrder(strat, price):
+    user = findUser(strat)
+    ticker = allStrats[strat]['ticker'][:3]
+    amount = allStrats[strat]['amount']
+    
+    current = firebase.database().child("crypto").child(user).child(ticker).get().val()
+    updated = current + (amount/price)
+    firebase.database().child("crypto").child(user).update({ticker : updated})
+
+    current = firebase.database().child("coins").child(user).get().val()
+    updated = current - amount
+    firebase.database().child("coins").update({user : updated})
+
+def sellOrder(strat, price):
+    user = findUser(strat)
+    ticker = allStrats[strat]['ticker'][:3]
+    amount = allStrats[strat]['amount']
+    
+    current = firebase.database().child("crypto").child(user).child(ticker).get().val()
+    updated = current - (amount/price)
+    firebase.database().child("crypto").child(user).update({ticker : updated})
+
+    current = firebase.database().child("coins").child(user).get().val()
+    updated = current + amount
+    firebase.database().child("coins").update({user : updated})
+
+
+def findUser(stratToFind):
+    for user in strats.each():
+        usersstrats = firebase.database().child("strats").child(user.key()).get()
+        for strat in usersstrats.each():
+            if strat.key() == stratToFind:
+                return user.key()
 
 
 def on_open(ws):
@@ -233,6 +273,10 @@ def on_message(ws, message):
                     EMAs["BTC1m"] = talib.EMA(closes['BTC1m'], timeperiod = timeperiod)
                     MACDs['BTC1m'] = talib.EMA(closes['BTC1m'], timeperiod = timeperiodSmall) - talib.EMA(closes['BTC1m'], timeperiod = timeperiod)
                     RSIs['BTC1m'] = talib.RSI(closes['BTC1m'], timeperiod=timeperiod)
+                    for strat in stratsBTC:
+                        if strat['buyConditions']['indicator'] == 'SMA':
+                            if int(strat['buyConditions']['targetValue']) > SMAs['BTC1m']:
+                                buyOrder(strat, close)
             elif '5m' in ws.url:
                 if len(closes['BTC5m']) < timeperiod:
                     closes['BTC5m'].append(close)
@@ -430,9 +474,8 @@ def on_message(ws, message):
                     MACDs['ZIL1d'] = talib.EMA(closes['ZIL1d'], timeperiod = timeperiodSmall) - talib.EMA(closes['ZIL1d'], timeperiod = timeperiod)
                     RSIs['ZIL1d'] = talib.RSI(closes['ZIL1d'], timeperiod=timeperiod)
         print(closes)
-        
 initiateStrats()
-
+sellOrder('ID1', 10)
 for socket in websockets:
     ws = websocket.WebSocketApp(websockets[socket], on_open = on_open, on_message = on_message, on_close = on_close)
     wst = Thread(target=ws.run_forever)
