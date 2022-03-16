@@ -31,6 +31,44 @@
 		"ZIL" : 0
 	}
   },
+ "orders" : {
+    "2tOzWUvatndZMnSw5GKxujt8Eu83" : {
+	"id1" : {
+	    "type":"BUY",
+            "strat": "BTC RSI",
+            "amount":100,
+            "ticker": "BTCUSDT",
+            "time": 1641147007704
+		}
+	},
+    "MBlqD0pLwrMV4cyFn3neyJ5Hr843" : {
+	"id2" : {
+	    "type":"BUY",
+            "strat": "BTC RSI",
+            "amount":100,
+            "ticker": "BTCUSDT",
+            "time": 1641147007704
+		}
+	},
+    "iQumg2P5zzUzZ33VDsBwcET3Vtb2" : {
+	"id3" : {
+	    "type":"BUY",
+            "strat": "BTC RSI",
+            "amount":100,
+            "ticker": "BTCUSDT",
+            "time": 1641147007704
+		}
+	},
+    "vGQqRIrLynbh0FqUJUxtRH4bSIx2" : {
+	"id4" : {
+	    "type":"BUY",
+            "strat": "BTC RSI",
+            "amount":100,
+            "ticker": "BTCUSDT",
+            "time": 1641147007704
+		}
+	}
+  },
   "strats" : {
     "iQumg2P5zzUzZ33VDsBwcET3Vtb2" : {
       "53aa3633-efca-4d28-8682-798bfcd1948d" : {

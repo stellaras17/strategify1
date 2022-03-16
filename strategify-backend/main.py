@@ -205,29 +205,53 @@ def splitStrats():
 
 def buyOrder(strat, price):
     user = findUser(strat)
+    coins = firebase.database().child("coins").child(user).get().val()
     ticker = allStrats[strat]['ticker'][:3]
     amount = allStrats[strat]['amount']
-    
-    current = firebase.database().child("crypto").child(user).child(ticker).get().val()
-    updated = current + (amount/price)
-    firebase.database().child("crypto").child(user).update({ticker : updated})
 
-    current = firebase.database().child("coins").child(user).get().val()
-    updated = current - amount
-    firebase.database().child("coins").update({user : updated})
+    if coins > amount:
+        
+        current = firebase.database().child("crypto").child(user).child(ticker).get().val()
+        updated = current + (amount/price)
+        firebase.database().child("crypto").child(user).update({ticker : updated})
+
+        current = firebase.database().child("coins").child(user).get().val()
+        updated = current - amount
+        firebase.database().child("coins").update({user : updated})
+
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'BUY')    
+    else:
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'ERROR' ) 
 
 def sellOrder(strat, price):
     user = findUser(strat)
+    coins = firebase.database().child("coins").child(user).get().val()
     ticker = allStrats[strat]['ticker'][:3]
     amount = allStrats[strat]['amount']
     
-    current = firebase.database().child("crypto").child(user).child(ticker).get().val()
-    updated = current - (amount/price)
-    firebase.database().child("crypto").child(user).update({ticker : updated})
+    if coins > amount:
+        current = firebase.database().child("crypto").child(user).child(ticker).get().val()
+        updated = current - (amount/price)
+        firebase.database().child("crypto").child(user).update({ticker : updated})
 
-    current = firebase.database().child("coins").child(user).get().val()
-    updated = current + amount
-    firebase.database().child("coins").update({user : updated})
+        current = firebase.database().child("coins").child(user).get().val()
+        updated = current + amount
+        firebase.database().child("coins").update({user : updated})
+
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'SELL' )  
+    else:
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'ERROR' )
+
+def dbOrder(user, amount, strat, ticker, time, type):
+    order = {
+        "amount": amount,
+        "strat": strat,
+        "ticker": ticker,
+        "time": time,
+        "type": type
+    }
+    firebase.database().child("orders").child(user).push(order)
+
 
 
 def findUser(stratToFind):
