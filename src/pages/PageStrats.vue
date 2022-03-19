@@ -64,8 +64,6 @@
 
     </q-drawer>
 
-    
-
     <q-dialog v-model="showAddStrat">
       <add-strat @close="showAddStrat = false" />
     </q-dialog>

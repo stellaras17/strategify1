@@ -3,7 +3,12 @@
     <q-header elevated>
       <q-toolbar>
 
-        <p class="q-mt-sm">{{userem}}</p>
+        <q-chip>
+          <q-avatar>
+            <img src="https://cdn.quasar.dev/img/boy-avatar.png">
+          </q-avatar>
+          {{username}}
+        </q-chip>
 
         <q-toolbar-title class="text-secondary absolute-center">
           Strategify
@@ -58,6 +63,23 @@
 
           <q-item-section>
             <q-item-label>My Strategies</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item
+          to="/currencies"
+          clickable
+          exact
+          active-class="text-secondary"
+        >
+          <q-item-section
+            avatar
+          >
+            <q-icon name = "monetization_on" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>Crypto Wallet</q-item-label>
           </q-item-section>
         </q-item>
 
@@ -118,7 +140,9 @@ export default {
     }
   },
   computed: {
-    ...mapState('auth', ['loggedIn', 'userem'])
+    ...mapState('auth', ['loggedIn']),
+    ...mapState('users', ['username']),
+
   },
   methods: {
     ...mapActions('auth', ['logOutUser']),

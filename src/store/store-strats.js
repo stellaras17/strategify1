@@ -111,18 +111,18 @@ const actions = {
     },
     initiateCoinsNewUser({dispatch}) {
       let user = firebaseAuth.currentUser
-      try {
+       try {
         if(user==null){
           setTimeout(dispatch,1000,'initiateCoinsNewUser')
-        } else {
+        } else { 
           let userID = firebaseAuth.currentUser.uid
           let coinsRef = firebaseDb.ref('coins/'+ userID )
           coinsRef.set(1000)
-        }
+         }
       }
       catch(err) {
         alert(err.message)
-      }   
+      } 
     }
 }
 

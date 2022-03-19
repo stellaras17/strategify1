@@ -153,7 +153,7 @@ export default {
           }
       },
       tickerOptions: [
-        'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'BTCETH', 'ZILUSDT'
+        'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ZILUSDT'
       ],
       timeframeOptions: [
         '1m', '5m', '1h', '4h', '1d'

@@ -3,7 +3,7 @@ import { uid } from 'quasar'
 import { firebaseDb, firebaseAuth } from 'src/boot/firebase'
 
 const state = {
-    orders: {
+    currencies: {
         /* ID1: {
             type:"BUY",
             strat: "BTC RSI",
@@ -37,41 +37,54 @@ const state = {
 
 
 const mutations = {
-    addOrder(state, payload) {
-        Vue.set(state.orders, payload.id, payload.order)
+    addCurrency(state, payload) {
+        Vue.set(state.currencies, payload.id, payload.currency)
+      },
+    updateCurrency(state, payload){
+        Object.assign(state.currencies[payload.id], payload.updates)
       },
 }
 
 const actions = {
-    addOrder({ dispatch, commit }, payload) {
+    addCurrency({ dispatch, commit }, payload) {
         let orderId = uid()
-        let newOrder = {
+        let newCurrency = {
             id: orderId,
             order: payload
         }
-        console.log(newOrder);
-        commit('addOrder', newOrder)
+        console.log(newCurrency);
+        commit('addCurrency', newCurrency)
         //dispatch('dbAddStrat', newStrat)
       },
       dbReadData({commit}) {
         let user = firebaseAuth.currentUser.uid
-        let userOrders = firebaseDb.ref('orders/' + user)
+        let userCurrencies = firebaseDb.ref('crypto/' + user)
         
-        userOrders.on('child_added', snapshot => {
-          let order = snapshot.val()
+        
+        userCurrencies.on('child_added', snapshot => {
+          let currency = snapshot.val()
           let payload = {
             id: snapshot.key,
-            order: order
+            currency: currency
           }
-          commit('addOrder', payload)
+          commit('addCurrency', payload)
         })
+
+        userCurrencies.on('child_changed', snapshot => {
+            let currency = snapshot.val()
+            let payload = {
+              id: snapshot.key,
+              updates: currency
+            }
+            commit('updateCurrency', payload)
+          })
   
       },
 }
 
 const getters = {
-    orders: (state) => {
-        return state.orders
+    currencies: (state) => {
+        return state.currencies
     } 
 } 
 

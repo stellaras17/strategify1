@@ -9,7 +9,7 @@
         class="q-mb-md"
         >
             <q-item-section avatar>
-            <q-avatar :color="order.type=='BUY' ? 'positive' : 'negative'" text-color="white" icon="" />
+            <q-avatar :color="order.type=='BUY' ? 'positive' : order.type=='ERROR' ? 'yellow' : 'negative'" text-color="white" icon="" />
             </q-item-section>
             <div class="col">
                 <q-item-section class="text-h6"> {{order.amount}}  {{order.ticker}}</q-item-section>

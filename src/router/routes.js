@@ -7,6 +7,7 @@ const routes = [
       { path: '', component: () => import('pages/PageStrats.vue') },
       { path: '/orders', component: () => import('pages/PageOrders.vue') },
       { path: '/auth', component: () => import('pages/PageAuth.vue') },
+      { path: '/currencies', component: () => import('pages/PageCurrencies.vue') },
       { path: '/settings', component: () => import('pages/PageSettings.vue') },
     ]
   },

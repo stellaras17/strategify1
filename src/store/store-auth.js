@@ -12,7 +12,6 @@ const mutations = {
         state.loggedIn = value
     },
     setUserEmail(state, value){
-        //let email = LocalStorage.getItem('userEmail')
         state.userem = value
     }
 }
@@ -51,9 +50,14 @@ const actions = {
         firebaseAuth.onAuthStateChanged(user => {
             if(user) {
                 commit('changeLoggedIn', true)
+                commit('setUserEmail', user.email)
                 LocalStorage.set('loggedIn', true)
                 this.$router.push('/').catch(err => {})
+                dispatch('users/dbReadData', null, { root: true })
                 dispatch('strats/dbReadData', null, { root: true })
+                dispatch('orders/dbReadData', null, { root: true })
+                dispatch('currencies/dbReadData', null, { root: true })
+                dispatch('hub/dbReadData', null, { root: true })
                 dispatch('strats/initiateCoins', null, { root: true })
             }
             else {

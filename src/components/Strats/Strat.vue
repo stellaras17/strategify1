@@ -19,6 +19,15 @@
               round
               color="secondary"
               icon="edit" />
+
+            <q-btn
+              @click="promptToShare(id, strat)"
+              class="float-right"
+              dense
+              flat
+              round
+              color="secondary"
+              icon="share" />
             </q-banner>
 
         <q-item class="bg-white">
@@ -112,6 +121,7 @@ export default {
     props: ['strat', 'id'],
     methods: {
         ...mapActions('strats', ['updateStrat', 'deleteStrat']),
+        ...mapActions('hub', ['addStrat']),
         promptToDelete(id) {
             this.$q.dialog({
                 title: 'Confirm',
@@ -121,8 +131,20 @@ export default {
             }).onOk(() => {
                 this.deleteStrat(id)
             })
-                
-            
+        },
+        promptToShare(id, strat) {
+            this.$q.dialog({
+                title: 'Confirm',
+                message: 'Share strategy to the hub?',
+                cancel: true,
+                persistent: true
+            }).onOk(() => {
+                let payload = {
+                    id: id,
+                    strat: strat
+                }
+                this.addStrat(payload);
+            })
         }
     },
     components: {
