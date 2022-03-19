@@ -219,9 +219,9 @@ def buyOrder(strat, price):
         updated = current - amount
         firebase.database().child("coins").update({user : updated})
 
-        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'BUY', price)    
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'BUY')    
     else:
-        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'ERROR', price ) 
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'ERROR' ) 
 
 def sellOrder(strat, price):
     user = findUser(strat)
@@ -238,18 +238,17 @@ def sellOrder(strat, price):
         updated = current + amount
         firebase.database().child("coins").update({user : updated})
 
-        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'SELL', price )  
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'SELL' )  
     else:
-        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'ERROR', price )
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'ERROR' )
 
-def dbOrder(user, amount, strat, ticker, time, type, price):
+def dbOrder(user, amount, strat, ticker, time, type):
     order = {
         "amount": amount,
         "strat": strat,
         "ticker": ticker,
         "time": time,
-        "type": type,
-        "price": price
+        "type": type
     }
     firebase.database().child("orders").child(user).push(order)
 
