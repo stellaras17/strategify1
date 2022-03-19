@@ -3,7 +3,7 @@
     <q-header elevated>
       <q-toolbar>
 
-        <q-chip>
+        <q-chip v-if="loggedIn">
           <q-avatar>
             <img src="https://cdn.quasar.dev/img/boy-avatar.png">
           </q-avatar>
@@ -97,6 +97,23 @@
 
           <q-item-section>
             <q-item-label>Orders</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item
+          to="/hub"
+          clickable
+          exact
+          active-class="text-secondary"
+        >
+          <q-item-section
+            avatar
+          >
+            <q-icon name = "people" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>Hub</q-item-label>
           </q-item-section>
         </q-item>
 

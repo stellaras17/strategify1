@@ -74,9 +74,16 @@ const actions = {
     },
     dbAddStrat({}, payload) {
       let user = firebaseAuth.currentUser.uid
+      let usernameRef = firebaseDb.ref('users/' + user + '/username')
+      var username = ''
+      usernameRef.on('value', function(snapshot) {
+          username = snapshot.val()
+      });
+      console.log(username);
       let hubRef = firebaseDb.ref('hub/' + payload.id)
       let post = {
         user: user,
+        username: username,
         strat: payload.strat,
         likes: 0
       }
@@ -86,7 +93,9 @@ const actions = {
 }
 
 const getters = {
-
+  strats: state => {
+    return state.strats
+  }
 } 
 
 export default {

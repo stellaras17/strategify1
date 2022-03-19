@@ -3,10 +3,11 @@
       <q-list
         v-for="(currency, key) in currencies"
         :key="key"
-        padding
+        class="q-ma-lg"
+        bordered
         seperated>
         <q-item
-        class="q-mb-md"
+        class="q-mb-md flex-center"
         >
             <q-item-section avatar>
             <q-avatar>
@@ -17,7 +18,7 @@
                 <q-item-section class="text-h6"> {{key}} : {{currency}}</q-item-section>
             </div>
         </q-item>
-            <q-separator/>
+            
       </q-list>
   </q-page>
 </template>

@@ -209,19 +209,19 @@ def buyOrder(strat, price):
     ticker = allStrats[strat]['ticker'][:3]
     amount = allStrats[strat]['amount']
 
-    if coins > amount:
+    if float(coins) > float(amount):
         
         current = firebase.database().child("crypto").child(user).child(ticker).get().val()
-        updated = current + (amount/price)
+        updated = current + float(amount)/price
         firebase.database().child("crypto").child(user).update({ticker : updated})
 
         current = firebase.database().child("coins").child(user).get().val()
-        updated = current - amount
+        updated = float(current) + float(amount)
         firebase.database().child("coins").update({user : updated})
 
-        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'BUY')    
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'BUY', price)    
     else:
-        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'ERROR' ) 
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'ERROR', price ) 
 
 def sellOrder(strat, price):
     user = findUser(strat)
@@ -229,26 +229,27 @@ def sellOrder(strat, price):
     ticker = allStrats[strat]['ticker'][:3]
     amount = allStrats[strat]['amount']
     
-    if coins > amount:
+    if float(coins) > float(amount):
+        
         current = firebase.database().child("crypto").child(user).child(ticker).get().val()
-        updated = current - (amount/price)
+        updated = current - float(amount)/price
         firebase.database().child("crypto").child(user).update({ticker : updated})
-
         current = firebase.database().child("coins").child(user).get().val()
-        updated = current + amount
+        updated = float(current) - float(amount)
         firebase.database().child("coins").update({user : updated})
-
-        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'SELL' )  
+        
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'SELL', price )  
     else:
-        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'ERROR' )
+        dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'ERROR', price )
 
-def dbOrder(user, amount, strat, ticker, time, type):
+def dbOrder(user, amount, strat, ticker, time, type, price):
     order = {
         "amount": amount,
         "strat": strat,
         "ticker": ticker,
         "time": time,
-        "type": type
+        "type": type,
+        "price": price
     }
     firebase.database().child("orders").child(user).push(order)
 
@@ -269,6 +270,7 @@ def on_close(ws):
     print("closed connection")
 
 def on_message(ws, message):
+    global allStrats
     global closes
     global SMAs
     global EMAs
@@ -301,25 +303,29 @@ def on_message(ws, message):
                     RSIs['BTC1m'] = (talib.RSI(np.array(closes['BTC1m']), timeperiod=rsiperiod))[-1]
                     
                     for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['BTC1m']:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['BTC1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['BTC1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BTC1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['BTC1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BTC1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['BTC1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BTC1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['BTC1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BTC1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['BTC1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BTC1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['BTC1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BTC1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['BTC1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['BTC1m']:
                                 sellOrder(strat, float(close))
             elif '5m' in ws.url:
                 if len(closes['BTC5m']) < timeperiod:
@@ -332,25 +338,29 @@ def on_message(ws, message):
                     MACDs['BTC5m'] = (talib.EMA(np.array(closes['BTC5m']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['BTC5m']), timeperiod = timeperiod))[-1]
                     RSIs['BTC5m'] = (talib.RSI(np.array(closes['BTC5m']), timeperiod=rsiperiod))[-1]
                     for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['BTC5m']:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['BTC5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['BTC5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BTC5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['BTC5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BTC5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['BTC5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BTC5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['BTC5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BTC5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['BTC5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BTC5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['BTC5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BTC5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['BTC5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['BTC5m']:
                                 sellOrder(strat, float(close))
             elif '1h' in ws.url:
                 if len(closes['BTC1h']) < timeperiod:
@@ -363,25 +373,29 @@ def on_message(ws, message):
                     MACDs['BTC1h'] = (talib.EMA(np.array(closes['BTC1h']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['BTC1h']), timeperiod = timeperiod))[-1]
                     RSIs['BTC1h'] = (talib.RSI(np.array(closes['BTC1h']), timeperiod=rsiperiod))[-1]
                     for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['BTC1h']:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['BTC1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['BTC1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BTC1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['BTC1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BTC1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['BTC1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BTC1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['BTC1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BTC1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['BTC1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BTC1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['BTC1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BTC1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['BTC1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['BTC1h']:
                                 sellOrder(strat, float(close))
                     RSIs['BTC1h'] = talib.RSI(closes['BTC1h'], timeperiod=timeperiod)
             elif '4h' in ws.url:
@@ -395,25 +409,29 @@ def on_message(ws, message):
                     MACDs['BTC4h'] = (talib.EMA(np.array(closes['BTC4h']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['BTC4h']), timeperiod = timeperiod))[-1]
                     RSIs['BTC4h'] = (talib.RSI(np.array(closes['BTC4h']), timeperiod=rsiperiod))[-1]
                     for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['BTC4h']:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['BTC4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['BTC4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BTC4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['BTC4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BTC4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['BTC4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BTC4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['BTC4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BTC4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['BTC4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BTC4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['BTC4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BTC4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['BTC4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['BTC4h']:
                                 sellOrder(strat, float(close))
             elif '1d' in ws.url:
                 if len(closes['BTC1d']) < timeperiod:
@@ -426,25 +444,29 @@ def on_message(ws, message):
                     MACDs['BTC1d'] = (talib.EMA(np.array(closes['BTC1d']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['BTC1d']), timeperiod = timeperiod))[-1]
                     RSIs['BTC1d'] = (talib.RSI(np.array(closes['BTC1d']), timeperiod=rsiperiod))[-1]
                     for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['BTC1d']:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['BTC1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['BTC1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BTC1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['BTC1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BTC1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['BTC1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BTC1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['BTC1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BTC1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['BTC1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BTC1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['BTC1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BTC1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['BTC1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['BTC1d']:
                                 sellOrder(strat, float(close))
 
         elif 'eth' in ws.url:
@@ -458,26 +480,30 @@ def on_message(ws, message):
                     EMAs["ETH1m"] = (talib.EMA(np.array(closes['ETH1m']), timeperiod = timeperiod))[-1]
                     MACDs['ETH1m'] = (talib.EMA(np.array(closes['ETH1m']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['ETH1m']), timeperiod = timeperiod))[-1]
                     RSIs['ETH1m'] = (talib.RSI(np.array(closes['ETH1m']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['ETH1m']:
+                    for strat in stratsETH:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['ETH1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['ETH1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ETH1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['ETH1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ETH1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['ETH1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ETH1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['ETH1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ETH1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['ETH1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ETH1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['ETH1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ETH1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['ETH1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['ETH1m']:
                                 sellOrder(strat, float(close))
             elif '5m' in ws.url:
                 if len(closes['ETH5m']) < timeperiod:
@@ -489,26 +515,30 @@ def on_message(ws, message):
                     EMAs["ETH5m"] = (talib.EMA(np.array(closes['ETH5m']), timeperiod = timeperiod))[-1]
                     MACDs['ETH5m'] = (talib.EMA(np.array(closes['ETH5m']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['ETH5m']), timeperiod = timeperiod))[-1]
                     RSIs['ETH5m'] = (talib.RSI(np.array(closes['ETH5m']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['ETH5m']:
+                    for strat in stratsETH:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['ETH5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['ETH5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ETH5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['ETH5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ETH5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['ETH5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ETH5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['ETH5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ETH5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['ETH5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ETH5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['ETH5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ETH5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['ETH5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['ETH5m']:
                                 sellOrder(strat, float(close))
             elif '1h' in ws.url:
                 if len(closes['ETH1h']) < timeperiod:
@@ -520,26 +550,30 @@ def on_message(ws, message):
                     EMAs["ETH1h"] = (talib.EMA(np.array(closes['ETH1h']), timeperiod = timeperiod))[-1]
                     MACDs['ETH1h'] = (talib.EMA(np.array(closes['ETH1h']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['ETH1h']), timeperiod = timeperiod))[-1]
                     RSIs['ETH1h'] = (talib.RSI(np.array(closes['ETH1h']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['ETH1h']:
+                    for strat in stratsETH:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['ETH1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['ETH1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ETH1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['ETH1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ETH1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['ETH1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ETH1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['ETH1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ETH1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['ETH1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ETH1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['ETH1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ETH1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['ETH1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['ETH1h']:
                                 sellOrder(strat, float(close))
             elif '4h' in ws.url:
                 if len(closes['ETH4h']) < timeperiod:
@@ -551,26 +585,30 @@ def on_message(ws, message):
                     EMAs["ETH4h"] = (talib.EMA(np.array(closes['ETH4h']), timeperiod = timeperiod))[-1]
                     MACDs['ETH4h'] = (talib.EMA(np.array(closes['ETH4h']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['ETH4h']), timeperiod = timeperiod))[-1]
                     RSIs['ETH4h'] = (talib.RSI(np.array(closes['ETH4h']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['ETH4h']:
+                    for strat in stratsETH:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['ETH4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['ETH4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ETH4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['ETH4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ETH4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['ETH4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ETH4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['ETH4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ETH4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['ETH4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ETH4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['ETH4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ETH4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['ETH4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['ETH4h']:
                                 sellOrder(strat, float(close))
             elif '1d' in ws.url:
                 if len(closes['ETH1d']) < timeperiod:
@@ -582,26 +620,30 @@ def on_message(ws, message):
                     EMAs["ETH1d"] = (talib.EMA(np.array(closes['ETH1d']), timeperiod = timeperiod))[-1]
                     MACDs['ETH1d'] = (talib.EMA(np.array(closes['ETH1d']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['ETH1d']), timeperiod = timeperiod))[-1]
                     RSIs['ETH1d'] = (talib.RSI(np.array(closes['ETH1d']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['ETH1d']:
+                    for strat in stratsETH:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['ETH1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['ETH1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ETH1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['ETH1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ETH1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['ETH1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ETH1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['ETH1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ETH1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['ETH1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ETH1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['ETH1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ETH1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['ETH1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['ETH1d']:
                                 sellOrder(strat, float(close))
 
         elif 'bnb' in ws.url:
@@ -615,26 +657,30 @@ def on_message(ws, message):
                     EMAs["BNB1m"] = (talib.EMA(np.array(closes['BNB1m']), timeperiod = timeperiod))[-1]
                     MACDs['BNB1m'] = (talib.EMA(np.array(closes['BNB1m']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['BNB1m']), timeperiod = timeperiod))[-1]
                     RSIs['BNB1m'] = (talib.RSI(np.array(closes['BNB1m']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['BNB1m']:
+                    for strat in stratsBNB:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['BNB1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['BNB1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BNB1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['BNB1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BNB1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['BNB1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BNB1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['BNB1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BNB1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['BNB1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BNB1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['BNB1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BNB1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['BNB1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['BNB1m']:
                                 sellOrder(strat, float(close))
             elif '5m' in ws.url:
                 if len(closes['BNB5m']) < timeperiod:
@@ -646,26 +692,30 @@ def on_message(ws, message):
                     EMAs["BNB5m"] = (talib.EMA(np.array(closes['BNB5m']), timeperiod = timeperiod))[-1]
                     MACDs['BNB5m'] = (talib.EMA(np.array(closes['BNB5m']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['BNB5m']), timeperiod = timeperiod))[-1]
                     RSIs['BNB5m'] = (talib.RSI(np.array(closes['BNB5m']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['BNB5m']:
+                    for strat in stratsBNB:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['BNB5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['BNB5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BNB5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['BNB5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BNB5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['BNB5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BNB5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['BNB5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BNB5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['BNB5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BNB5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['BNB5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BNB5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['BNB5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['BNB5m']:
                                 sellOrder(strat, float(close))
             elif '1h' in ws.url:
                 if len(closes['BNB1h']) < timeperiod:
@@ -677,26 +727,30 @@ def on_message(ws, message):
                     EMAs["BNB1h"] = (talib.EMA(np.array(closes['BNB1h']), timeperiod = timeperiod))[-1]
                     MACDs['BNB1h'] = (talib.EMA(np.array(closes['BNB1h']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['BNB1h']), timeperiod = timeperiod))[-1]
                     RSIs['BNB1h'] = (talib.RSI(np.array(closes['BNB1h']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['BNB1h']:
+                    for strat in stratsBNB:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['BNB1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['BNB1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BNB1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['BNB1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BNB1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['BNB1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BNB1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['BNB1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BNB1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['BNB1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BNB1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['BNB1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BNB1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['BNB1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['BNB1h']:
                                 sellOrder(strat, float(close))
             elif '4h' in ws.url:
                 if len(closes['BNB4h']) < timeperiod:
@@ -708,26 +762,30 @@ def on_message(ws, message):
                     EMAs["BNB4h"] = (talib.EMA(np.array(closes['BNB4h']), timeperiod = timeperiod))[-1]
                     MACDs['BNB4h'] = (talib.EMA(np.array(closes['BNB4h']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['BNB4h']), timeperiod = timeperiod))[-1]
                     RSIs['BNB4h'] = (talib.RSI(np.array(closes['BNB4h']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['BNB4h']:
+                    for strat in stratsBNB:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['BNB4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['BNB4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BNB4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['BNB4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BNB4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['BNB4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BNB4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['BNB4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BNB4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['BNB4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BNB4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['BNB4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BNB4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['BNB4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['BNB4h']:
                                 sellOrder(strat, float(close))
             elif '1d' in ws.url:
                 if len(closes['BNB1d']) < timeperiod:
@@ -739,26 +797,30 @@ def on_message(ws, message):
                     EMAs["BNB1d"] = (talib.EMA(np.array(closes['BNB1d']), timeperiod = timeperiod))[-1]
                     MACDs['BNB1d'] = (talib.EMA(np.array(closes['BNB1d']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['BNB1d']), timeperiod = timeperiod))[-1]
                     RSIs['BNB1d'] = (talib.RSI(np.array(closes['BNB1d']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['BNB1d']:
+                    for strat in stratsBNB:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['BNB1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['BNB1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BNB1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['BNB1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BNB1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['BNB1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BNB1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['BNB1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BNB1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['BNB1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BNB1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['BNB1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BNB1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['BNB1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['BNB1d']:
                                 sellOrder(strat, float(close))
 
         elif 'zil' in ws.url:
@@ -772,26 +834,30 @@ def on_message(ws, message):
                     EMAs["ZIL1m"] = (talib.EMA(np.array(closes['ZIL1m']), timeperiod = timeperiod))[-1]
                     MACDs['ZIL1m'] = (talib.EMA(np.array(closes['ZIL1m']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['ZIL1m']), timeperiod = timeperiod))[-1]
                     RSIs['ZIL1m'] = (talib.RSI(np.array(closes['ZIL1m']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['ZIL1m']:
+                    for strat in stratsZIL:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['ZIL1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['ZIL1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ZIL1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['ZIL1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ZIL1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['ZIL1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ZIL1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['ZIL1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ZIL1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['ZIL1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ZIL1m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['ZIL1m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ZIL1m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['ZIL1m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['ZIL1m']:
                                 sellOrder(strat, float(close))
             elif '5m' in ws.url:
                 if len(closes['ZIL5m']) < timeperiod:
@@ -803,26 +869,30 @@ def on_message(ws, message):
                     EMAs["ZIL5m"] = (talib.EMA(np.array(closes['ZIL5m']), timeperiod = timeperiod))[-1]
                     MACDs['ZIL5m'] = (talib.EMA(np.array(closes['ZIL5m']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['ZIL5m']), timeperiod = timeperiod))[-1]
                     RSIs['ZIL5m'] = (talib.RSI(np.array(closes['ZIL5m']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['ZIL5m']:
+                    for strat in stratsZIL:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['ZIL5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['ZIL5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ZIL5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['ZIL5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ZIL5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['ZIL5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ZIL5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['ZIL5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ZIL5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['ZIL5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ZIL5m']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['ZIL5m']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ZIL5m']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['ZIL5m']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['ZIL5m']:
                                 sellOrder(strat, float(close))
             elif '1h' in ws.url:
                 if len(closes['ZIL1h']) < timeperiod:
@@ -834,26 +904,30 @@ def on_message(ws, message):
                     EMAs["ZIL1h"] = (talib.EMA(np.array(closes['ZIL1h']), timeperiod = timeperiod))[-1]
                     MACDs['ZIL1h'] = (talib.EMA(np.array(closes['ZIL1h']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['ZIL1h']), timeperiod = timeperiod))[-1]
                     RSIs['ZIL1h'] = (talib.RSI(np.array(closes['ZIL1h']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['ZIL1h']:
+                    for strat in stratsZIL:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['ZIL1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['ZIL1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ZIL1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['ZIL1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ZIL1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['ZIL1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ZIL1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['ZIL1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ZIL1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['ZIL1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ZIL1h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['ZIL1h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ZIL1h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['ZIL1h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['ZIL1h']:
                                 sellOrder(strat, float(close))
             elif '4h' in ws.url:
                 if len(closes['ZIL4h']) < timeperiod:
@@ -865,26 +939,30 @@ def on_message(ws, message):
                     EMAs["ZIL4h"] = (talib.EMA(np.array(closes['ZIL4h']), timeperiod = timeperiod))[-1]
                     MACDs['ZIL4h'] = (talib.EMA(np.array(closes['ZIL4h']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['ZIL4h']), timeperiod = timeperiod))[-1]
                     RSIs['ZIL4h'] = (talib.RSI(np.array(closes['ZIL4h']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['ZIL4h']:
+                    for strat in stratsZIL:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['ZIL4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['ZIL4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ZIL4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['ZIL4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ZIL4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['ZIL4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ZIL4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['ZIL4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ZIL4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['ZIL4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ZIL4h']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['ZIL4h']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ZIL4h']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['ZIL4h']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['ZIL4h']:
                                 sellOrder(strat, float(close))
             elif '1d' in ws.url:
                 if len(closes['ZIL1d']) < timeperiod:
@@ -896,26 +974,30 @@ def on_message(ws, message):
                     EMAs["ZIL1d"] = (talib.EMA(np.array(closes['ZIL1d']), timeperiod = timeperiod))[-1]
                     MACDs['ZIL1d'] = (talib.EMA(np.array(closes['ZIL1d']), timeperiod = timeperiodSmall))[-1] - (talib.EMA(np.array(closes['ZIL1d']), timeperiod = timeperiod))[-1]
                     RSIs['ZIL1d'] = (talib.RSI(np.array(closes['ZIL1d']), timeperiod=rsiperiod))[-1]
-                    for strat in stratsBTC:
-                        if strat['buyConditions']['indicator'] == 'SMA':
-                            if int(strat['buyConditions']['targetValue']) >= SMAs['ZIL1d']:
+                    for strat in stratsZIL:
+                        if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['ZIL1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= SMAs['ZIL1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ZIL1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'EMA':
-                            if int(strat['buyConditions']['targetValue']) >= EMAs['ZIL1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ZIL1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= EMAs['ZIL1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ZIL1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'MACD':
-                            if int(strat['buyConditions']['targetValue']) >= MACDs['ZIL1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ZIL1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= MACDs['ZIL1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ZIL1d']:
                                 sellOrder(strat, float(close))
                         if strat['buyConditions']['indicator'] == 'RSI':
-                            if int(strat['buyConditions']['targetValue']) >= RSIs['ZIL1d']:
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ZIL1d']:
                                 buyOrder(strat, float(close))
-                            if int(strat['sellConditions']['targetValue']) <= RSIs['ZIL1d']:
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                            if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['ZIL1d']:
                                 sellOrder(strat, float(close))
         print(len(closes['BTC1m']), closes['BTC1m'], SMAs['BTC1m'],EMAs['BTC1m'],MACDs['BTC1m'],RSIs['BTC1m'])
 

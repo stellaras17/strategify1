@@ -1,7 +1,7 @@
 <template>
 
         <div class="row prices-div">
-            <q-card class="my-card cursor-pointer" @click="goToURL('BTC')">
+            <q-card style="min-height:233px" class="my-card cursor-pointer" @click="goToURL('BTC')">
                 <q-spinner-pie v-if="btcPrice==0" color="secondary" size="5.5em" class="absolute-center" />
                 <div v-else>
                     <q-card-section class="text-center text-weight-bold">

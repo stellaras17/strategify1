@@ -8,6 +8,7 @@ const routes = [
       { path: '/orders', component: () => import('pages/PageOrders.vue') },
       { path: '/auth', component: () => import('pages/PageAuth.vue') },
       { path: '/currencies', component: () => import('pages/PageCurrencies.vue') },
+      { path: '/hub', component: () => import('pages/PageHub.vue') },
       { path: '/settings', component: () => import('pages/PageSettings.vue') },
     ]
   },
