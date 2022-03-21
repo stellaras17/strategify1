@@ -38,14 +38,6 @@ const actions = {
     deleteStrat({ dispatch }, id) {
       dispatch('dbDeleteStrat', id)
     },
-    addStrat({ dispatch }, payload) {
-      let stratId = uid()
-      let newStrat = {
-        id: stratId,
-        strat: payload.strat
-      }
-      dispatch('dbAddStrat', newStrat)
-    },
     dbReadData({commit}) {
       let userStrats = firebaseDb.ref('hub/')
       
@@ -55,7 +47,6 @@ const actions = {
           id: snapshot.key,
           strat: strat
         }
-        console.log(payload);
         commit('addStrat', payload)
       })
 
@@ -76,18 +67,31 @@ const actions = {
       let user = firebaseAuth.currentUser.uid
       let usernameRef = firebaseDb.ref('users/' + user + '/username')
       var username = ''
+      var hub
       usernameRef.on('value', function(snapshot) {
           username = snapshot.val()
       });
-      console.log(username);
-      let hubRef = firebaseDb.ref('hub/' + payload.id)
-      let post = {
-        user: user,
-        username: username,
-        strat: payload.strat,
-        likes: 0
+      let hubRef = firebaseDb.ref('hub')
+      hubRef.on('value', function(snapshot) {
+          hub = snapshot.val()
+      });
+      var hubKeys = []
+      Object.keys(hub).forEach(element => {
+        hubKeys.push(element)
+      });
+      let postRef =  firebaseDb.ref('hub/' + payload.id )
+      if(!hubKeys.includes(payload.id)){
+        let post = {
+          user: user,
+          username: username,
+          strat: payload.strat,
+          likes: 0
+        }
+        postRef.set(post)
       }
-      hubRef.set(post)
+      else {
+        alert('Strategy already on the hub!')
+      }
     },
     
 }

@@ -9,7 +9,8 @@
             bordered
             seperated>
             <post
-            :post="post">
+            :post="post"
+            :id="key">
             </post>
         </q-list>
   </q-page>

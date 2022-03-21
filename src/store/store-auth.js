@@ -35,7 +35,6 @@ const actions = {
             console.log(response);
         })
         .then(
-           // LocalStorage.set('userEmail', payload.email)
            commit('setUserEmail', payload.email)
         )
         .catch(error => {

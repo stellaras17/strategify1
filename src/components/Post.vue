@@ -59,7 +59,7 @@
                     </div>
             </div>
             <div class="row q-ml-sm">
-                <q-btn flat :label="post.likes" round color="primary" icon="favorite" /> 
+                <q-btn @click="dbLikePost(id)" flat :label="post.likes" round :color="userHasLiked ? 'red' : 'primary'" icon="favorite" /> 
             </div>
         </div>
     </div>
@@ -68,19 +68,78 @@
 
 <script>
 import { mapActions } from 'vuex'
+import { firebaseDb, firebaseAuth } from 'src/boot/firebase'
 
 export default {
     data() {
         return {
-           
+           userHasLiked: false
         }
     },
     props: ['post', 'id'],
     methods: {
-        
-    },
+        ...mapActions('hub', ['dbLikePost']),
+        getColors(id) {
+            var peopleLiked
+            let user = firebaseAuth.currentUser.uid
+            let peopleRef = firebaseDb.ref('hub/' + id + '/peopleLiked')
+            peopleRef.on('value', function(snapshot) {
+                peopleLiked = snapshot.val()
+            });
+            if(peopleLiked == null){
+                this.userHasLiked = false
+            }
+            else {
+                if(peopleLiked.includes(user)){
+                    this.userHasLiked = true
+                }
+                else {
+                    this.userHasLiked = false
+                }
+            }
+        },
+        dbLikePost(id) {
+            var peopleLiked, likes
+            let user = firebaseAuth.currentUser.uid
+            let peopleRef = firebaseDb.ref('hub/' + id + '/peopleLiked')
+            let likesRef = firebaseDb.ref('hub/' + id + '/likes')
+            peopleRef.on('value', function(snapshot) {
+                peopleLiked = snapshot.val()
+            });
+            likesRef.on('value', function(snapshot) {
+                likes = snapshot.val()
+            });
+            if(peopleLiked == null){
+                let updated = likes+1
+                likesRef.set(updated)
+                let updatedPeople = [user]
+                peopleRef.set(updatedPeople)
+                this.userHasLiked = true
+            }
+            else {
+                if(peopleLiked.includes(user)){
+                    let updated = likes-1
+                    likesRef.set(updated)
+                    let updatedPeople = peopleLiked.filter(item => item !== user)
+                    peopleRef.set(updatedPeople)
+                    this.userHasLiked = false
+                    }
+                else {
+                    let updated = likes+1
+                    likesRef.set(updated)
+                    let updatedPeople = peopleLiked
+                    updatedPeople.push(user)
+                    peopleRef.set(updatedPeople)
+                    this.userHasLiked = true
+                    }
+                }
+            }
+        },
     components: {
 
+    },
+    mounted() {
+        this.getColors(this.id)
     }
 }
 </script>

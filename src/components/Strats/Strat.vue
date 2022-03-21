@@ -121,7 +121,7 @@ export default {
     props: ['strat', 'id'],
     methods: {
         ...mapActions('strats', ['updateStrat', 'deleteStrat']),
-        ...mapActions('hub', ['addStrat']),
+        ...mapActions('hub', ['dbAddStrat']),
         promptToDelete(id) {
             this.$q.dialog({
                 title: 'Confirm',
@@ -132,18 +132,19 @@ export default {
                 this.deleteStrat(id)
             })
         },
-        promptToShare(id, strat) {
+        promptToShare(key, strat) {
             this.$q.dialog({
                 title: 'Confirm',
                 message: 'Share strategy to the hub?',
                 cancel: true,
                 persistent: true
             }).onOk(() => {
+                console.log(key);
                 let payload = {
-                    id: id,
+                    id: key,
                     strat: strat
                 }
-                this.addStrat(payload);
+                this.dbAddStrat(payload);
             })
         }
     },
