@@ -2,8 +2,8 @@ import { firebaseAuth, firebaseDb } from 'boot/firebase.js'
 import { LocalStorage } from 'quasar'
 
 const state = {
-    username: '',
-    profURL: ''
+    username: null,
+    profURL: null
 }
 
 
@@ -43,19 +43,28 @@ const actions = {
             updates: user
           }
           if(payload.id == 'profURL'){
-            commit('updateProfURL', payload.update)
+            commit('updateProfURL', payload.updates)
             }
           if(payload.id == 'username'){
-                commit('updateUsername', payload.update)
+                commit('updateUsername', payload.updates)
             }
 
         })
     },
+    getUsername(state){
+        return state.username
+    }
 
 }
 
 const getters = {
-
+    username: (state) => {
+        console.log(state.username);
+        return state.usermame
+    },
+    profURL: state => {
+        return state.profURL
+    },
 } 
 
 export default {

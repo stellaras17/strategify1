@@ -116,6 +116,7 @@ export default {
     data() {
         return {
             showEditStrat: false
+            
         }
     },
     props: ['strat', 'id'],

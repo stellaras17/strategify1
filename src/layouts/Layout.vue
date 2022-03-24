@@ -3,12 +3,7 @@
     <q-header elevated>
       <q-toolbar>
 
-        <q-chip v-if="loggedIn">
-          <q-avatar>
-            <img src="https://cdn.quasar.dev/img/boy-avatar.png">
-          </q-avatar>
-          {{username}}
-        </q-chip>
+        <user-details></user-details>
 
         <q-toolbar-title class="text-secondary absolute-center">
           Strategify
@@ -137,7 +132,6 @@
     </q-drawer>
 
     
-    
 
     <q-page-container>
       <router-view />
@@ -153,6 +147,7 @@ export default {
   data () {
     return {
       leftDrawerOpen: false,
+      showUser: false,
       userEmail: ''
     }
   },
@@ -163,10 +158,12 @@ export default {
   },
   methods: {
     ...mapActions('auth', ['logOutUser']),
-    /* setUserEmail() {
-      let email = LocalStorage.getItem('userEmail')
-      this.userEmail = email
-    } */
+    user() {
+      console.log('asds');
+    }
+  },
+  components: {
+    'user-details' : require('components/User/UserDetails.vue').default
   },
   mounted() {
     /* if(this.loggedIn){

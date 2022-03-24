@@ -1,3 +1,5 @@
 pyrebase
 websocket-client
 numpy
+talib
+threading
