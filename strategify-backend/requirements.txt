@@ -1,5 +1,7 @@
 pyrebase
+json
 websocket-client
+time
 numpy
 talib
 threading

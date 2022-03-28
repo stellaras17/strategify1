@@ -212,11 +212,11 @@ def buyOrder(strat, price):
     if float(coins) > float(amount):
         
         current = firebase.database().child("crypto").child(user).child(ticker).get().val()
-        updated = current + float(amount)/price
+        updated = float(current) + price/float(amount)
         firebase.database().child("crypto").child(user).update({ticker : updated})
 
         current = firebase.database().child("coins").child(user).get().val()
-        updated = float(current) + float(amount)
+        updated = float(current) - float(amount)
         firebase.database().child("coins").update({user : updated})
 
         dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'BUY', price)    
@@ -228,14 +228,15 @@ def sellOrder(strat, price):
     coins = firebase.database().child("coins").child(user).get().val()
     ticker = allStrats[strat]['ticker'][:3]
     amount = allStrats[strat]['amount']
+    cryptoBal = firebase.database().child("crypto").child(user).child(ticker).get().val()
     
-    if float(coins) > float(amount):
-        
-        current = firebase.database().child("crypto").child(user).child(ticker).get().val()
-        updated = current - float(amount)/price
+    if (float(cryptoBal) - float(amount)/price) > float(amount):
+
+        updated = float(cryptoBal) - float(amount)/price
+
         firebase.database().child("crypto").child(user).update({ticker : updated})
         current = firebase.database().child("coins").child(user).get().val()
-        updated = float(current) - float(amount)
+        updated = float(current) + float(amount)
         firebase.database().child("coins").update({user : updated})
         
         dbOrder(user, amount, allStrats[strat]['name'], allStrats[strat]['ticker'], time.time(), 'SELL', price )  
@@ -306,27 +307,28 @@ def on_message(ws, message):
                         if allStrats[strat]['buyConditions']['indicator'] == 'SMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= SMAs['BTC1m']:
                                 buyOrder(strat, float(close))
-                        elif allStrats[strat]['sellConditions']['indicator'] == "SMA":
+                        if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BTC1m']:
                                 sellOrder(strat, float(close))
-                        elif strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BTC1m']:
                                 buyOrder(strat, float(close))
-                        elif allStrats[strat]['sellConditions']['indicator'] == "EMA":
+                        if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BTC1m']:
                                 sellOrder(strat, float(close))
-                        elif strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BTC1m']:
                                 buyOrder(strat, float(close))
-                        elif allStrats[strat]['sellConditions']['indicator'] == "MACD":
+                        if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BTC1m']:
                                 sellOrder(strat, float(close))
-                        elif strat['buyConditions']['indicator'] == 'RSI':
-                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BTC1m']:
-                                buyOrder(strat, float(close))
-                        elif allStrats[strat]['sellConditions']['indicator'] == "RSI":   
+                        if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= RSIs['BTC1m']:
                                 sellOrder(strat, float(close))
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
+                            if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BTC1m']:
+                                buyOrder(strat, float(close))
+
             elif '5m' in ws.url:
                 if len(closes['BTC5m']) < timeperiod:
                     closes['BTC5m'].append(float(close))
@@ -344,19 +346,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BTC5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BTC5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BTC5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BTC5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BTC5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BTC5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -379,19 +381,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BTC1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BTC1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BTC1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BTC1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BTC1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BTC1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -415,19 +417,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BTC4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BTC4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BTC4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BTC4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BTC4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BTC4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -450,19 +452,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BTC1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BTC1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BTC1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BTC1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BTC1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BTC1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -487,19 +489,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ETH1m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ETH1m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ETH1m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ETH1m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ETH1m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ETH1m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -522,19 +524,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ETH5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ETH5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ETH5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ETH5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ETH5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ETH5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -557,19 +559,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ETH1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ETH1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ETH1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ETH1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ETH1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ETH1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -592,19 +594,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ETH4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ETH4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ETH4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ETH4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ETH4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ETH4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -627,19 +629,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ETH1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ETH1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ETH1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ETH1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ETH1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ETH1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -664,19 +666,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BNB1m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BNB1m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BNB1m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BNB1m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BNB1m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BNB1m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -699,19 +701,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BNB5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BNB5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BNB5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BNB5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BNB5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BNB5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -734,19 +736,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BNB1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BNB1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BNB1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BNB1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BNB1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BNB1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -769,19 +771,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BNB4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BNB4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BNB4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BNB4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BNB4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BNB4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -804,19 +806,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['BNB1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['BNB1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['BNB1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['BNB1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['BNB1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['BNB1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -841,19 +843,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ZIL1m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ZIL1m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ZIL1m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ZIL1m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ZIL1m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ZIL1m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -876,19 +878,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ZIL5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ZIL5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ZIL5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ZIL5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ZIL5m']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ZIL5m']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -911,19 +913,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ZIL1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ZIL1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ZIL1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ZIL1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ZIL1h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ZIL1h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -946,19 +948,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ZIL4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ZIL4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ZIL4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ZIL4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ZIL4h']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ZIL4h']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   
@@ -981,19 +983,19 @@ def on_message(ws, message):
                         if allStrats[strat]['sellConditions']['indicator'] == "SMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= SMAs['ZIL1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'EMA':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'EMA':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= EMAs['ZIL1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "EMA":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= EMAs['ZIL1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'MACD':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'MACD':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= MACDs['ZIL1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "MACD":
                             if float(allStrats[strat]['sellConditions']['targetValue']) <= MACDs['ZIL1d']:
                                 sellOrder(strat, float(close))
-                        if strat['buyConditions']['indicator'] == 'RSI':
+                        if allStrats[strat]['buyConditions']['indicator'] == 'RSI':
                             if float(allStrats[strat]['buyConditions']['targetValue']) >= RSIs['ZIL1d']:
                                 buyOrder(strat, float(close))
                         if allStrats[strat]['sellConditions']['indicator'] == "RSI":   

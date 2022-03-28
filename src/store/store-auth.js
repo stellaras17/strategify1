@@ -71,7 +71,6 @@ const actions = {
 const getters = {
     getUser: state => {
         let user = state.userEmail
-        console.log(user);
         return user;
     }
 } 

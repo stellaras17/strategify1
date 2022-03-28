@@ -1,5 +1,5 @@
 <template>
-  <q-page padding class="bg-info">
+  <q-page style="width:100%" padding class="bg-info">
     <q-btn dense class="float-right" flat round icon="menu" @click="rightDrawerOpen=!rightDrawerOpen" />
 
       <top-three />
