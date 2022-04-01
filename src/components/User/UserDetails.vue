@@ -45,10 +45,10 @@ export default {
       let allUsernamesRef = firebaseDb.ref('usernames')
       var allUsernames
       var currentUsername
-      allUsernamesRef.on('value', function(snapshot) {
+      allUsernamesRef.on('child_added', snapshot => {
           allUsernames = snapshot.val()
       });
-      usernameRef.on('value', function(snapshot) {
+      usernameRef.on('child_added', snapshot => {
           currentUsername = snapshot.val()
       });
       if(!this.checkAvailability(data)){
@@ -66,7 +66,7 @@ export default {
     checkAvailability(username) {
       let allUsernamesRef = firebaseDb.ref('usernames')
       var allUsernames
-      allUsernamesRef.on('value', function(snapshot) {
+      allUsernamesRef.on('value', snapshot => {
           allUsernames = snapshot.val()
       });
       if(Object.keys(allUsernames).includes(username)){
@@ -82,7 +82,7 @@ export default {
     ...mapState('users', ['username']),
   },
   created() {
-    this.usernameToSubmit = this.username 
+    //this.usernameToSubmit = this.username 
   }
 }
 </script>

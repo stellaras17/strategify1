@@ -3,7 +3,7 @@
     <q-header elevated>
       <q-toolbar>
 
-        <user-details></user-details>
+        <user-details v-if="loggedIn"></user-details>
 
         <q-toolbar-title class="text-secondary absolute-center">
           Strategify

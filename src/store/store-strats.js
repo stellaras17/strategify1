@@ -117,7 +117,14 @@ const actions = {
         } else { 
           let userID = firebaseAuth.currentUser.uid
           let coinsRef = firebaseDb.ref('coins/'+ userID )
+          let cryptoRef = firebaseDb.ref('crypto/'+ userID )
           coinsRef.set(1000)
+          cryptoRef.set({
+            'BTC':0.5,
+            'ETH':1,
+            'BNB':1,
+            'ZIL': 1000
+          })
          }
       }
       catch(err) {
