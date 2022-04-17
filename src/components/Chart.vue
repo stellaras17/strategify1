@@ -5,7 +5,7 @@
     </div>
 </template>
 
-<script>
+<script >
 import {createChart, CrosshairMode, LightweightCharts} from 'lightweight-charts'
 import {mapGetters} from 'vuex'
 
@@ -61,7 +61,7 @@ export default {
     mounted() {
         this.renderChart()
     }
-}
+} 
 </script>
 
 <style scoped>

@@ -20,8 +20,8 @@
   </div>
 </template>
 
-<script>
-import { openURL } from 'quasar'
+<script src="./News.js">
+/* import { openURL } from 'quasar'
 export default {
     data() {
         return {
@@ -53,7 +53,7 @@ export default {
     mounted() {
         this.fetchNews()
     }
-}
+} */
 </script>
 
 <style>

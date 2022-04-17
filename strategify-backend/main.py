@@ -1,5 +1,5 @@
 import pyrebase, json
-import websocket, time
+import websocket, time, requests
 import talib
 import numpy as np
 from threading import Thread
@@ -174,6 +174,22 @@ firebase = None
 def rotateList(l, n):
     return l[n:] + l[:n]
 
+def returnPrice(arr):
+    return float(arr[4])
+
+def getData():
+    global closes
+    tickers = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ZILUSDT']
+    timeframes = ['1m', '5m', '1h', '4h', '1d']
+
+    for ticker in tickers:
+        for timeframe in timeframes:
+            res = requests.get('https://api.binance.com/api/v3/klines?symbol=' + ticker+ '&interval=' + timeframe+ '&limit=26')
+            response = json.loads(res.text)
+            data = list(map(returnPrice, response))
+            closes[ticker[:3]+timeframe] = data
+    print(closes)
+
 def initiateStrats():
     global allStrats, strats, firebase
     f = open('api.json')
@@ -230,7 +246,7 @@ def sellOrder(strat, price):
     amount = allStrats[strat]['amount']
     cryptoBal = firebase.database().child("crypto").child(user).child(ticker).get().val()
     
-    if (float(cryptoBal) - float(amount)/price) > float(amount):
+    if (float(cryptoBal) > float(amount)/price):
 
         updated = float(cryptoBal) - float(amount)/price
 
@@ -1017,7 +1033,7 @@ def main():
         wst.start()
         threads.append(wst)
 
-    time.sleep(120)
+    time.sleep(60)
 
     for ws in sockets:
         ws.close()
@@ -1030,4 +1046,5 @@ def main():
     main()
 
 if __name__ == "__main__":
+    getData()
     main()
