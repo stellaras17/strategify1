@@ -188,7 +188,6 @@ def getData():
             response = json.loads(res.text)
             data = list(map(returnPrice, response))
             closes[ticker[:3]+timeframe] = data
-    print(closes)
 
 def initiateStrats():
     global allStrats, strats, firebase
