@@ -5,5 +5,6 @@
   "projectId": "strategify-fdc5f",
   "storageBucket": "strategify-fdc5f.appspot.com",
   "messagingSenderId": "1019947070543",
-  "appId": "1:1019947070543:web:af80b9591dfe51c163663a"
+  "appId": "1:1019947070543:web:af80b9591dfe51c163663a",
+  "serviceAccount": "admin.json"
 }

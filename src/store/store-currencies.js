@@ -46,16 +46,7 @@ const mutations = {
 }
 
 const actions = {
-    addCurrency({ dispatch, commit }, payload) {
-        let orderId = uid()
-        let newCurrency = {
-            id: orderId,
-            order: payload
-        }
-        console.log(newCurrency);
-        commit('addCurrency', newCurrency)
-        //dispatch('dbAddStrat', newStrat)
-      },
+
       dbReadData({commit}) {
         let user = firebaseAuth.currentUser.uid
         let userCurrencies = firebaseDb.ref('crypto/' + user)

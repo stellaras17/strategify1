@@ -1,5 +1,4 @@
 import { firebaseAuth, firebaseDb } from 'boot/firebase.js'
-import { LocalStorage } from 'quasar'
 
 const state = {
     username: '',
@@ -10,6 +9,7 @@ const state = {
 const mutations = {
     updateUsername(state, value){
         state.username = value
+    
     },
     updateProfURL(state, value){
         state.profURL = value
@@ -19,40 +19,29 @@ const mutations = {
 const actions = {
     dbReadData({commit}) {
         let user = firebaseAuth.currentUser.uid
-        let userProf = firebaseDb.ref('users/' + user)
+        let userProf = firebaseDb.ref('users/' + user +'/username')
+
+        userProf.on('value', snapshot => {
+            let update = snapshot.val()
+            
+            commit('updateUsername', update)
+          })
 
         userProf.on('child_added', snapshot => {
             let update = snapshot.val()
-            let payload = {
-              id: snapshot.key,
-              update: update
-            }
-            if(payload.id == 'profURL'){
-                commit('updateProfURL', payload.update)
-            }
-            if(payload.id == 'username'){
-                commit('updateUsername', payload.update)
-            }
+            
+            commit('updateUsername', update)
           })
   
         userProf.on('child_changed', snapshot => {
-          let user = snapshot.val()
-          let payload = {
-            id: snapshot.key,
-            updates: user
-          }
-          if(payload.id == 'profURL'){
-            commit('updateProfURL', payload.updates)
-            }
-          if(payload.id == 'username'){
-                commit('updateUsername', payload.updates)
-            }
+          let update = snapshot.val()
+          commit('updateUsername', update)
         })
     },
 }
 
 const getters = {
-    username: (state) => {
+    username: state => {
         return state.usermame
     },
     profURL: state => {

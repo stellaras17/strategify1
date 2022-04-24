@@ -52,7 +52,6 @@ export default {
             this.addOrder(payload)
         },
         getDate(timestamp){
-            console.log(parseFloat(timestamp));
             var d = new Date(parseFloat(timestamp*1000));
             return d.toGMTString();
         }
